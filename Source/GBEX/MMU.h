@@ -5,6 +5,7 @@
 #include <cstdint>
 #include "Cartridge.h"
 #include "BitValue.h"
+#include "Interrupts.h"
 
 namespace gbex
 {
@@ -42,10 +43,15 @@ namespace gbex
 
 		uint16_t read16(uint16_t addr);
 		
+		uint8_t* get_memory_pointer(uint16_t addr);
 
 		void do_dma_transfer(uint8_t data);
 
+		void initialise_memory_mapped_io();
+
 	private:
+
+		void initialise_memory_mapped_io_dmg();
 
 		friend class gbex;
 
@@ -58,6 +64,8 @@ namespace gbex
 		uint8_t* m_Memory;
 
 		Cartridge* m_Cartridge;
+
+		Interrupts* interrupts;
 
 
 	};

@@ -8,7 +8,7 @@ add_subdirectory("Vendor/SDL")
 
 set(SOURCES
 	"Source/Main.cpp"
- "Source/GBEX/Cartridge.cpp" "Source/GBEX/MMU.cpp" "Source/GBEX/GBEX.cpp" "Source/GBEX/CPU.cpp" "Source/GBEX/Interrupts.cpp" "Source/GBEX/Opcodes.cpp")
+ "Source/GBEX/Cartridge.cpp" "Source/GBEX/MMU.cpp" "Source/GBEX/GBEX.cpp" "Source/GBEX/CPU.cpp" "Source/GBEX/Interrupts.cpp" "Source/GBEX/Opcodes.cpp" "Source/GBEX/PPU.cpp")
 
 add_executable(gbex ${SOURCES})
 

@@ -8,18 +8,23 @@ namespace gbex
 {
 	enum class InterruptSource
 	{
-		VBlank = (1 << 0),
-		LCD = (1 << 1),
-		Timer = (1 << 2),
-		Serial = (1 << 3),
-		Joypad = (1 << 4),
+		VBlank = 0,
+		LCD = 1,
+		Timer = 2,
+		Serial = 3,
+		Joypad = 4
 	};
+
+	class MMU;
+	class CPU;
 
 	class Interrupts
 	{
 	public:
 
-		Interrupts();
+		Interrupts() : m_IME(false) { }
+
+		Interrupts(CPU* _cpu, MMU* mmu);
 
 		void set_master_flag(bool value);
 
@@ -27,11 +32,19 @@ namespace gbex
 
 		bool is_interrupt_enabled(InterruptSource source);
 
+		bool is_interrupt_requested(InterruptSource source);
+
+		void handle_interrupts();
+
 	private:
 
 		bool m_IME;
 
+		BitAddress m_IE;
+		BitAddress m_IF;
 
+		
+		CPU* m_ParentCPU;
 	};
 }
 

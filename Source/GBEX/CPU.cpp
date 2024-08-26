@@ -8,12 +8,10 @@ namespace gbex
 {
 	CPU::CPU() : af(a, f), bc(b, c), de(d, e), hl(h, l), pc(0x0), sp(0x0), is_halted(false), tcycles(0x0)
 	{
-		logFile = fopen("cpu_log.txt", "w");
 	}
 
 	CPU::~CPU()
 	{
-		fclose(logFile);
 	}
 
 	void CPU::initialise_registers(CartridgeHeader& header)
@@ -115,10 +113,10 @@ namespace gbex
 
 		tcycles += instr.cycles;
 
-		fprintf(logFile, "A:%02x F:%02x B:%02x C:%02x D:%02x E:%02x H:%02x L:%02x SP:%04x PC:%04x PCMEM:%02x,%02x,%02x,%02x\n",
+		/*fprintf(logFile, "A:%02x F:%02x B:%02x C:%02x D:%02x E:%02x H:%02x L:%02x SP:%04x PC:%04x PCMEM:%02x,%02x,%02x,%02x\n",
 			a.get(), f.get(), b.get(), c.get(), d.get(), e.get(), h.get(), l.get(), sp, pc,
 			mmu->read8(pc), mmu->read8(pc + 1), mmu->read8(pc + 2), mmu->read8(pc + 3)
-		);
+		);*/
 
 		// We increment here to go past the opcode 
 		pc++;

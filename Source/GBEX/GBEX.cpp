@@ -41,9 +41,14 @@ namespace gbex
 			break;
 		}
 
+		m_MMU.initialise_memory_mapped_io();
 
 		m_CPU.initialise_registers(header);
 		m_CPU.mmu = &m_MMU;
+		m_CPU.interrupts = Interrupts(&m_CPU, &m_MMU);
+		m_MMU.interrupts = &m_CPU.interrupts;
+		m_PPU.m_VsyncCallback = m_VsyncCallback;
+		m_PPU.m_CPU = &m_CPU;
 
 		return true;
 	}
@@ -73,6 +78,8 @@ namespace gbex
 		if (!m_HitBreakpoint)
 		{
 			m_CPU.step();
+
+			m_PPU.step();
 		}
 
 

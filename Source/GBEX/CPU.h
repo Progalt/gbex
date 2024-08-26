@@ -173,8 +173,6 @@ namespace gbex
 
 		void opcode_bit(uint8_t bit, uint8_t val);
 
-		FILE* logFile;
-
 	};
 }
 

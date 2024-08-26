@@ -4,6 +4,8 @@
 
 #include "CPU.h"
 #include "MMU.h"
+#include "PPU.h"
+#include <functional>
 
 namespace gbex
 {
@@ -32,11 +34,18 @@ namespace gbex
 
 		void set_breakpoint(uint16_t target_pc);
 
+		void set_vsync_callback(std::function<void()> callback)
+		{
+			m_VsyncCallback = callback;
+		}
 
 		CPU m_CPU;
 		MMU m_MMU;
+		PPU m_PPU;
 
 	private:
+
+		std::function<void()> m_VsyncCallback;
 
 		uint16_t m_Breakpoint = 0xFFFF;
 		bool m_HitBreakpoint = false;

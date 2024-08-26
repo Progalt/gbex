@@ -62,6 +62,45 @@ namespace gbex
 
 		uint8_t m_Byte;
 	};
+
+	class BitAddress
+	{
+	public:
+
+		BitAddress() : m_Ptr(nullptr) { }
+		BitAddress(uint8_t* ptr) : m_Ptr(ptr) { }
+
+		void clear_bit(uint8_t idx)
+		{
+			*m_Ptr ^= (1 << idx);
+		}
+
+		void set_bit(uint8_t idx, bool value)
+		{
+			*m_Ptr = set_bit_to(*m_Ptr, idx, value);
+		}
+
+		bool is_bit_set(uint8_t idx)
+		{
+			return (bool)((*m_Ptr >> idx) & 1);
+		}
+
+		operator uint8_t() const { return *m_Ptr; }
+
+		bool operator==(const uint8_t value)
+		{
+			return (*m_Ptr == value);
+		}
+
+		uint8_t get() const
+		{
+			return *m_Ptr;
+		}
+
+	private:
+
+		uint8_t* m_Ptr = nullptr;
+	};
 }
 
 #endif // REGISTER_H
