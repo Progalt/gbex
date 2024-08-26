@@ -7,9 +7,20 @@
 
 namespace gbex
 {
+	enum class DeviceType
+	{
+		DMG, 
+		CGB
+	};
+
 	class gbex
 	{
 	public:
+
+		void set_device_type(DeviceType type)
+		{
+			m_DeviceType = type;
+		}
 
 		bool load_cartridge(uint8_t* rom, const size_t size);
 
@@ -29,6 +40,8 @@ namespace gbex
 
 		uint16_t m_Breakpoint = 0xFFFF;
 		bool m_HitBreakpoint = false;
+
+		DeviceType m_DeviceType = DeviceType::DMG;
 
 	};
 }

@@ -246,4 +246,122 @@ namespace gbex
 
 		return result;
 	}
+
+	uint8_t CPU::opcode_rlc(uint8_t val)
+	{
+		uint8_t carry = is_bit_set(val, 7);
+		uint8_t trunc = is_bit_set(val, 7);
+		uint8_t result = (uint8_t)((val << 1) | trunc);
+
+		set_flag_carry(carry);
+		set_flag_zero(result == 0);
+		set_flag_half_carry(false);
+		set_flag_subtract(false);
+
+		return result;
+	}
+
+	uint8_t CPU::opcode_rrc(uint8_t val)
+	{
+		uint8_t carry_flag = is_bit_set(val, 0);
+		uint8_t truncated_bit = is_bit_set(val, 0);
+		uint8_t result = (uint8_t)((val >> 1) | (truncated_bit << 7));
+
+		set_flag_carry(carry_flag);
+		set_flag_zero(result == 0);
+		set_flag_half_carry(false);
+		set_flag_subtract(false);
+
+		return result;
+	}
+
+	uint8_t CPU::opcode_rl(uint8_t val)
+	{
+		uint8_t carry = flag_carry();
+
+		bool willCarry = is_bit_set(val, 7);
+		set_flag_carry(willCarry);
+
+		uint8_t result = (uint8_t)(val << 1);
+		result |= carry;
+
+		set_flag_zero(result == 0);
+
+		set_flag_subtract(false);
+		set_flag_half_carry(false);
+
+		return result;
+	}
+
+	void CPU::opcode_bit(uint8_t bit, uint8_t val)
+	{
+		set_flag_zero(!is_bit_set(val, bit));
+		set_flag_subtract(false);
+		set_flag_half_carry(true);
+	}
+
+	uint8_t CPU::opcode_sla(uint8_t val)
+	{
+		uint8_t carry_bit = is_bit_set(val, 7);
+
+		uint8_t result = (uint8_t)(val << 1);
+
+		set_flag_zero(result == 0);
+		set_flag_carry(carry_bit);
+		set_flag_half_carry(false);
+		set_flag_subtract(false);
+
+		return result;
+	}
+
+	uint8_t CPU::opcode_sra(uint8_t val)
+	{
+		uint8_t carry_bit = is_bit_set(val, 0);
+		uint8_t top_bit = is_bit_set(val, 7);
+
+		uint8_t result = (uint8_t)(val >> 1);
+		result = set_bit_to(result, 7, top_bit);
+
+		set_flag_zero(result == 0);
+		set_flag_carry(carry_bit);
+		set_flag_half_carry(false);
+		set_flag_subtract(false);
+
+		return result;
+	}
+
+	uint8_t CPU::opcode_swap(uint8_t val)
+	{
+		uint8_t lower_nibble = val & 0x0F;
+		uint8_t upper_nibble = (val & 0xF0) >> 4;
+
+		uint8_t result = (lower_nibble << 4) | upper_nibble;
+		
+		set_flag_zero(result == 0);
+		set_flag_subtract(false);
+		set_flag_half_carry(false);
+		set_flag_carry(false);
+
+		return result;
+	}
+
+	uint8_t CPU::opcode_set(uint8_t bit, uint8_t v)
+	{
+		return set_bit_to(v, bit, true);
+	}
+
+	void CPU::opcode_set(uint8_t bit, Register& reg)
+	{
+		reg.set(opcode_set(bit, reg.get()));
+	}
+
+	uint8_t CPU::opcode_res(uint8_t bit, uint8_t v)
+	{
+		return clear_bit(v, bit);
+	}
+
+	void CPU::opcode_res(uint8_t bit, Register& reg)
+	{
+		reg.set(opcode_res(bit, reg.get()));
+	}
 }

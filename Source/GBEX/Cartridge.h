@@ -49,7 +49,6 @@ namespace gbex
 		And 0x4000 -> 0x7FFF Being Bank N controlled by the MBC 
 
 		Reads to these addresses are routed through the virtual cartridge functions.
-		Writes are ignored, not that a game should write to them if its an official game.
 	*/
 
 	class Cartridge
@@ -61,6 +60,10 @@ namespace gbex
 
 		virtual uint16_t read16(uint16_t addr) = 0;
 
+		virtual void write8(uint16_t addr, uint8_t data) = 0;
+
+		virtual void write16(uint16_t addr, uint16_t data) = 0;
+
 		const uint8_t get_mbc_type() const { return m_Header.cartridge_type; }
 
 		const CartridgeHeader& get_header() const { return m_Header; }
@@ -70,6 +73,8 @@ namespace gbex
 		CartridgeHeader m_Header;
 
 		uint8_t* m_ROM;
+
+		uint16_t m_ROMBank = 0x01;
 
 	};
 
@@ -90,7 +95,30 @@ namespace gbex
 
 		uint16_t read16(uint16_t addr);
 
+		void write8(uint16_t addr, uint8_t data);
+
+		void write16(uint16_t addr, uint16_t data);
+
 	private:
+	};
+
+	class MBC1 : public Cartridge
+	{
+	public:
+
+		MBC1(CartridgeHeader header, uint8_t* rom)
+		{
+			m_Header = header;
+			m_ROM = rom;
+		}
+
+		uint8_t read8(uint16_t addr);
+
+		uint16_t read16(uint16_t addr);
+
+		void write8(uint16_t addr, uint8_t data);
+
+		void write16(uint16_t addr, uint16_t data);
 	};
 }
 

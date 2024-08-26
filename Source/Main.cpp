@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
     uint8_t* rom;
     long rom_size;
 
-    file = fopen("Tests/cpu_instrs/individual/02-interrupts.gb", "rb");
+    file = fopen("Tests/cpu_instrs.gb", "rb");
     if (file == NULL)
     {
         fprintf(stderr, "Unable to open file\n");
@@ -50,6 +50,7 @@ int main(int argc, char* argv[])
     fclose(file);
 
 	gbex::gbex emulator;
+    emulator.set_device_type(gbex::DeviceType::DMG);
     emulator.load_cartridge(rom, rom_size);
 
     printf("ROM Title: %s\n", emulator.get_cartridge()->get_header().title);

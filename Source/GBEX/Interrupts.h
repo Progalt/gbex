@@ -6,6 +6,15 @@
 
 namespace gbex
 {
+	enum class InterruptSource
+	{
+		VBlank = (1 << 0),
+		LCD = (1 << 1),
+		Timer = (1 << 2),
+		Serial = (1 << 3),
+		Joypad = (1 << 4),
+	};
+
 	class Interrupts
 	{
 	public:
@@ -13,6 +22,10 @@ namespace gbex
 		Interrupts();
 
 		void set_master_flag(bool value);
+
+		bool interrupts_enabled() const { return m_IME; }
+
+		bool is_interrupt_enabled(InterruptSource source);
 
 	private:
 

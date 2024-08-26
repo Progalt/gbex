@@ -160,6 +160,18 @@ namespace gbex
 
 		uint8_t opcode_srl(uint8_t val);
 		uint8_t opcode_rr(uint8_t val);
+		uint8_t opcode_rlc(uint8_t val);
+		uint8_t opcode_rrc(uint8_t val);
+		uint8_t opcode_rl(uint8_t val);
+		uint8_t opcode_sla(uint8_t val);
+		uint8_t opcode_sra(uint8_t val);
+		uint8_t opcode_swap(uint8_t val);
+		uint8_t opcode_set(uint8_t bit, uint8_t v);
+		void opcode_set(uint8_t bit, Register& reg);
+		uint8_t opcode_res(uint8_t bit, uint8_t v);
+		void opcode_res(uint8_t bit, Register& reg);
+
+		void opcode_bit(uint8_t bit, uint8_t val);
 
 		FILE* logFile;
 

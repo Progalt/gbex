@@ -148,7 +148,8 @@ namespace gbex
 			b.set(mmu->read8(pc++));
 			break;
 		case 0x07:			// RLCA
-			throw std::runtime_error("Unimplemented Instruction: 0x07");
+			a.set(opcode_rlc(a.get()));
+			set_flag_zero(false);
 			break;
 		case 0x08:			// LD [a16], SP
 			mmu->write16(mmu->read16(pc), sp);
@@ -173,7 +174,8 @@ namespace gbex
 			c.set(mmu->read8(pc++));
 			break;
 		case 0x0F:			// RRCA
-			throw std::runtime_error("Unimplemented Instruction: 0x0F");
+			a.set(opcode_rrc(a.get()));
+			set_flag_zero(false);
 			break;
 		case 0x10:			// STOP n8
 			pc++;			// Just increment the pc
@@ -198,7 +200,8 @@ namespace gbex
 			d.set(mmu->read8(pc++));
 			break;
 		case 0x17:			// RLA
-			throw std::runtime_error("Unimplemented Instruction: 0x17");
+			a.set(opcode_rl(a.get()));
+			set_flag_zero(false);
 			break;
 		case 0x18:			// JR e8
 		{
@@ -313,7 +316,7 @@ namespace gbex
 		{
 			uint8_t r = a.get();
 			uint8_t result = ~r;
-			a.set(r);
+			a.set(result);
 
 			set_flag_subtract(true);
 			set_flag_half_carry(true);
@@ -896,7 +899,19 @@ namespace gbex
 			pc = 0x20;
 			break;
 		case 0xE8:			// ADD SP, e8
-			throw std::runtime_error("Unimplemented Instruction: 0xE8");
+		{
+			uint16_t reg = sp;
+			int8_t v = mmu->read8(pc++);
+
+			int result = (int)(reg + v);
+
+			set_flag_zero(false);
+			set_flag_subtract(false);
+			set_flag_half_carry(((reg ^ v ^ (result & 0xFFFF)) & 0x10) == 0x10);
+			set_flag_carry(((reg ^ v ^ (result & 0xFFFF)) & 0x100) == 0x100);
+
+			sp = (uint16_t)result;
+		}
 			break;
 		case 0xE9:			// JP HL
 			pc = hl.get();
@@ -1000,76 +1015,76 @@ namespace gbex
 		switch (opcode)
 		{
 		case 0x00:			// RLC B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x00");
+			b.set(opcode_rlc(b.get()));
 			break;
 		case 0x01:			// RLC C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x01");
+			c.set(opcode_rlc(c.get()));
 			break;
 		case 0x02:			// RLC D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x02");
+			d.set(opcode_rlc(d.get()));
 			break;
 		case 0x03:			// RLC E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x03");
+			e.set(opcode_rlc(e.get()));
 			break;
 		case 0x04:			// RLC H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x04");
+			h.set(opcode_rlc(h.get()));
 			break;
 		case 0x05:			// RLC L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x05");
+			l.set(opcode_rlc(l.get()));
 			break;
 		case 0x06:			// RLC HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x06");
+			mmu->write8(hl.get(), opcode_rlc(mmu->read8(hl.get())));
 			break;
 		case 0x07:			// RLC A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x07");
+			a.set(opcode_rlc(a.get()));
 			break;
 		case 0x08:			// RRC B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x08");
+			b.set(opcode_rrc(b.get()));
 			break;
 		case 0x09:			// RRC C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x09");
+			c.set(opcode_rrc(c.get()));
 			break;
 		case 0x0A:			// RRC D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x0A");
+			d.set(opcode_rrc(d.get()));
 			break;
 		case 0x0B:			// RRC E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x0B");
+			e.set(opcode_rrc(e.get()));
 			break;
 		case 0x0C:			// RRC H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x0C");
+			h.set(opcode_rrc(h.get()));
 			break;
 		case 0x0D:			// RRC L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x0D");
+			l.set(opcode_rrc(l.get()));
 			break;
 		case 0x0E:			// RRC HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x0E");
+			mmu->write8(hl.get(), opcode_rrc(mmu->read8(hl.get())));
 			break;
 		case 0x0F:			// RRC A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x0F");
+			a.set(opcode_rrc(a.get()));
 			break;
 		case 0x10:			// RL B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x10");
+			b.set(opcode_rl(b.get()));
 			break;
 		case 0x11:			// RL C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x11");
+			c.set(opcode_rl(c.get()));
 			break;
 		case 0x12:			// RL D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x12");
+			d.set(opcode_rl(d.get()));
 			break;
 		case 0x13:			// RL E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x13");
+			e.set(opcode_rl(e.get()));
 			break;
 		case 0x14:			// RL H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x14");
+			h.set(opcode_rl(h.get()));
 			break;
 		case 0x15:			// RL L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x15");
+			l.set(opcode_rl(l.get()));
 			break;
 		case 0x16:			// RL HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x16");
+			mmu->write8(hl.get(), opcode_rl(mmu->read8(hl.get())));
 			break;
 		case 0x17:			// RL A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x17");
+			a.set(opcode_rl(a.get()));
 			break;
 		case 0x18:			// RR B
 			b.set(opcode_rr(b.get()));
@@ -1096,76 +1111,76 @@ namespace gbex
 			a.set(opcode_rr(a.get()));
 			break;
 		case 0x20:			// SLA B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x20");
+			b.set(opcode_sla(b.get()));
 			break;
 		case 0x21:			// SLA C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x21");
+			c.set(opcode_sla(c.get()));
 			break;
 		case 0x22:			// SLA D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x22");
+			d.set(opcode_sla(d.get()));
 			break;
 		case 0x23:			// SLA E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x23");
+			e.set(opcode_sla(e.get()));
 			break;
 		case 0x24:			// SLA H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x24");
+			h.set(opcode_sla(h.get()));
 			break;
 		case 0x25:			// SLA L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x25");
+			l.set(opcode_sla(l.get()));
 			break;
 		case 0x26:			// SLA HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x26");
+			mmu->write8(hl.get(), opcode_sla(mmu->read8(hl.get())));
 			break;
 		case 0x27:			// SLA A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x27");
+			a.set(opcode_sla(a.get()));
 			break;
 		case 0x28:			// SRA B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x28");
+			b.set(opcode_sra(b.get()));
 			break;
 		case 0x29:			// SRA C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x29");
+			c.set(opcode_sra(c.get()));
 			break;
 		case 0x2A:			// SRA D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x2A");
+			d.set(opcode_sra(d.get()));
 			break;
 		case 0x2B:			// SRA E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x2B");
+			e.set(opcode_sra(e.get()));
 			break;
 		case 0x2C:			// SRA H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x2C");
+			h.set(opcode_sra(h.get()));
 			break;
 		case 0x2D:			// SRA L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x2D");
+			l.set(opcode_sra(l.get()));
 			break;
 		case 0x2E:			// SRA HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x2E");
+			mmu->write8(hl.get(), opcode_sra(mmu->read8(hl.get())));
 			break;
 		case 0x2F:			// SRA A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x2F");
+			a.set(opcode_sra(a.get()));
 			break;
 		case 0x30:			// SWAP B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x30");
+			b.set(opcode_swap(b.get()));
 			break;
 		case 0x31:			// SWAP C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x31");
+			c.set(opcode_swap(c.get()));
 			break;
 		case 0x32:			// SWAP D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x32");
+			d.set(opcode_swap(d.get()));
 			break;
 		case 0x33:			// SWAP E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x33");
+			e.set(opcode_swap(e.get()));
 			break;
 		case 0x34:			// SWAP H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x34");
+			h.set(opcode_swap(h.get()));
 			break;
 		case 0x35:			// SWAP L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x35");
+			l.set(opcode_swap(l.get()));
 			break;
 		case 0x36:			// SWAP HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x36");
+			mmu->write8(hl.get(), opcode_swap(mmu->read8(hl.get())));
 			break;
 		case 0x37:			// SWAP A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x37");
+			a.set(opcode_swap(a.get()));
 			break;
 		case 0x38:			// SRL B
 			b.set(opcode_srl(b.get()));
@@ -1192,580 +1207,580 @@ namespace gbex
 			a.set(opcode_srl(a.get()));
 			break;
 		case 0x40:			// BIT 0, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x40");
+			opcode_bit(0, b.get());
 			break;
 		case 0x41:			// BIT 0, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x41");
+			opcode_bit(0, c.get());
 			break;
 		case 0x42:			// BIT 0, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x42");
+			opcode_bit(0, d.get());
 			break;
 		case 0x43:			// BIT 0, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x43");
+			opcode_bit(0, e.get());
 			break;
 		case 0x44:			// BIT 0, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x44");
+			opcode_bit(0, h.get());
 			break;
 		case 0x45:			// BIT 0, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x45");
+			opcode_bit(0, l.get());
 			break;
 		case 0x46:			// BIT 0, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x46");
+			opcode_bit(0, mmu->read8(hl.get()));
 			break;
 		case 0x47:			// BIT 0, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x47");
+			opcode_bit(0, a.get());
 			break;
 		case 0x48:			// BIT 1, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x48");
+			opcode_bit(1, b.get());
 			break;
 		case 0x49:			// BIT 1, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x49");
+			opcode_bit(1, c.get());
 			break;
 		case 0x4A:			// BIT 1, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x4A");
+			opcode_bit(1, d.get());
 			break;
 		case 0x4B:			// BIT 1, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x4B");
+			opcode_bit(1, e.get());
 			break;
 		case 0x4C:			// BIT 1, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x4C");
+			opcode_bit(1, h.get());
 			break;
 		case 0x4D:			// BIT 1, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x4D");
+			opcode_bit(1, l.get());
 			break;
 		case 0x4E:			// BIT 1, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x4E");
+			opcode_bit(1, mmu->read8(hl.get()));
 			break;
 		case 0x4F:			// BIT 1, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x4F");
+			opcode_bit(1, a.get());
 			break;
 		case 0x50:			// BIT 2, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x50");
+			opcode_bit(2, b.get());
 			break;
 		case 0x51:			// BIT 2, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x51");
+			opcode_bit(2, c.get());
 			break;
 		case 0x52:			// BIT 2, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x52");
+			opcode_bit(2, d.get());
 			break;
 		case 0x53:			// BIT 2, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x53");
+			opcode_bit(2, e.get());
 			break;
 		case 0x54:			// BIT 2, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x54");
+			opcode_bit(2, h.get());
 			break;
 		case 0x55:			// BIT 2, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x55");
+			opcode_bit(2, l.get());
 			break;
 		case 0x56:			// BIT 2, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x56");
+			opcode_bit(2, mmu->read8(hl.get()));
 			break;
 		case 0x57:			// BIT 2, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x57");
+			opcode_bit(2, a.get());
 			break;
 		case 0x58:			// BIT 3, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x58");
+			opcode_bit(3, b.get());
 			break;
 		case 0x59:			// BIT 3, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x59");
+			opcode_bit(3, c.get());
 			break;
 		case 0x5A:			// BIT 3, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x5A");
+			opcode_bit(3, d.get());
 			break;
 		case 0x5B:			// BIT 3, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x5B");
+			opcode_bit(3, e.get());
 			break;
 		case 0x5C:			// BIT 3, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x5C");
+			opcode_bit(3, h.get());
 			break;
 		case 0x5D:			// BIT 3, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x5D");
+			opcode_bit(3, l.get());
 			break;
 		case 0x5E:			// BIT 3, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x5E");
+			opcode_bit(3, mmu->read8(hl.get()));
 			break;
 		case 0x5F:			// BIT 3, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x5F");
+			opcode_bit(3, a.get());
 			break;
 		case 0x60:			// BIT 4, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x60");
+			opcode_bit(4, b.get());
 			break;
 		case 0x61:			// BIT 4, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x61");
+			opcode_bit(4, c.get());
 			break;
 		case 0x62:			// BIT 4, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x62");
+			opcode_bit(4, d.get());
 			break;
 		case 0x63:			// BIT 4, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x63");
+			opcode_bit(4, e.get());
 			break;
 		case 0x64:			// BIT 4, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x64");
+			opcode_bit(4, h.get());
 			break;
 		case 0x65:			// BIT 4, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x65");
+			opcode_bit(4, l.get());
 			break;
 		case 0x66:			// BIT 4, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x66");
+			opcode_bit(4, mmu->read8(hl.get()));
 			break;
 		case 0x67:			// BIT 4, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x67");
+			opcode_bit(4, a.get());
 			break;
 		case 0x68:			// BIT 5, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x68");
+			opcode_bit(5, b.get());
 			break;
 		case 0x69:			// BIT 5, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x69");
+			opcode_bit(5, c.get());
 			break;
 		case 0x6A:			// BIT 5, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x6A");
+			opcode_bit(5, d.get());
 			break;
 		case 0x6B:			// BIT 5, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x6B");
+			opcode_bit(5, e.get());
 			break;
 		case 0x6C:			// BIT 5, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x6C");
+			opcode_bit(5, h.get());
 			break;
 		case 0x6D:			// BIT 5, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x6D");
+			opcode_bit(5, l.get());
 			break;
 		case 0x6E:			// BIT 5, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x6E");
+			opcode_bit(5, mmu->read8(hl.get()));
 			break;
 		case 0x6F:			// BIT 5, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x6F");
+			opcode_bit(5, a.get());
 			break;
 		case 0x70:			// BIT 6, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x70");
+			opcode_bit(6, b.get());
 			break;
 		case 0x71:			// BIT 6, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x71");
+			opcode_bit(6, c.get());
 			break;
 		case 0x72:			// BIT 6, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x72");
+			opcode_bit(6, d.get());
 			break;
 		case 0x73:			// BIT 6, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x73");
+			opcode_bit(6, e.get());
 			break;
 		case 0x74:			// BIT 6, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x74");
+			opcode_bit(6, h.get());
 			break;
 		case 0x75:			// BIT 6, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x75");
+			opcode_bit(6, l.get());
 			break;
 		case 0x76:			// BIT 6, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x76");
+			opcode_bit(6, mmu->read8(hl.get()));
 			break;
 		case 0x77:			// BIT 6, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x77");
+			opcode_bit(6, a.get());
 			break;
 		case 0x78:			// BIT 7, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x78");
+			opcode_bit(7, b.get());
 			break;
 		case 0x79:			// BIT 7, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x79");
+			opcode_bit(7, c.get());
 			break;
 		case 0x7A:			// BIT 7, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x7A");
+			opcode_bit(7, d.get());
 			break;
 		case 0x7B:			// BIT 7, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x7B");
+			opcode_bit(7, e.get());
 			break;
 		case 0x7C:			// BIT 7, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x7C");
+			opcode_bit(7, h.get());
 			break;
 		case 0x7D:			// BIT 7, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x7D");
+			opcode_bit(7, l.get());
 			break;
 		case 0x7E:			// BIT 7, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x7E");
+			opcode_bit(7, mmu->read8(hl.get()));
 			break;
 		case 0x7F:			// BIT 7, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x7F");
+			opcode_bit(7, a.get());
 			break;
 		case 0x80:			// RES 0, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x80");
+			opcode_res(0, b);
 			break;
 		case 0x81:			// RES 0, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x81");
+			opcode_res(0, c);
 			break;
 		case 0x82:			// RES 0, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x82");
+			opcode_res(0, d);
 			break;
 		case 0x83:			// RES 0, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x83");
+			opcode_res(0, e);
 			break;
 		case 0x84:			// RES 0, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x84");
+			opcode_res(0, h);
 			break;
 		case 0x85:			// RES 0, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x85");
+			opcode_res(0, l);
 			break;
 		case 0x86:			// RES 0, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x86");
+			mmu->write8(hl.get(), opcode_res(0, mmu->read8(hl.get())));
 			break;
 		case 0x87:			// RES 0, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x87");
+			opcode_res(0, a);
 			break;
 		case 0x88:			// RES 1, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x88");
+			opcode_res(1, b);
 			break;
 		case 0x89:			// RES 1, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x89");
+			opcode_res(1, c);
 			break;
 		case 0x8A:			// RES 1, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x8A");
+			opcode_res(1, d);
 			break;
 		case 0x8B:			// RES 1, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x8B");
+			opcode_res(1, e);
 			break;
 		case 0x8C:			// RES 1, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x8C");
+			opcode_res(1, h);
 			break;
 		case 0x8D:			// RES 1, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x8D");
+			opcode_res(1, l);
 			break;
 		case 0x8E:			// RES 1, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x8E");
+			mmu->write8(hl.get(), opcode_res(1, mmu->read8(hl.get())));
 			break;
 		case 0x8F:			// RES 1, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x8F");
+			opcode_res(1, a);
 			break;
 		case 0x90:			// RES 2, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x90");
+			opcode_res(2, b);
 			break;
 		case 0x91:			// RES 2, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x91");
+			opcode_res(2, c);
 			break;
 		case 0x92:			// RES 2, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x92");
+			opcode_res(2, d);
 			break;
 		case 0x93:			// RES 2, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x93");
+			opcode_res(2, e);
 			break;
 		case 0x94:			// RES 2, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x94");
+			opcode_res(2, h);
 			break;
 		case 0x95:			// RES 2, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x95");
+			opcode_res(2, l);
 			break;
 		case 0x96:			// RES 2, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x96");
+			mmu->write8(hl.get(), opcode_res(2, mmu->read8(hl.get())));
 			break;
 		case 0x97:			// RES 2, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x97");
+			opcode_res(2, a);
 			break;
 		case 0x98:			// RES 3, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0x98");
+			opcode_res(3, b);
 			break;
 		case 0x99:			// RES 3, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0x99");
+			opcode_res(3, c);
 			break;
 		case 0x9A:			// RES 3, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0x9A");
+			opcode_res(3, d);
 			break;
 		case 0x9B:			// RES 3, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0x9B");
+			opcode_res(3, e);
 			break;
 		case 0x9C:			// RES 3, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0x9C");
+			opcode_res(3, h);
 			break;
 		case 0x9D:			// RES 3, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0x9D");
+			opcode_res(3, l);
 			break;
 		case 0x9E:			// RES 3, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0x9E");
+			mmu->write8(hl.get(), opcode_res(3, mmu->read8(hl.get())));
 			break;
 		case 0x9F:			// RES 3, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0x9F");
+			opcode_res(3, a);
 			break;
 		case 0xA0:			// RES 4, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0xA0");
+			opcode_res(4, b);
 			break;
 		case 0xA1:			// RES 4, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0xA1");
+			opcode_res(4, c);
 			break;
 		case 0xA2:			// RES 4, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0xA2");
+			opcode_res(4, d);
 			break;
 		case 0xA3:			// RES 4, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0xA3");
+			opcode_res(4, e);
 			break;
 		case 0xA4:			// RES 4, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0xA4");
+			opcode_res(4, h);
 			break;
 		case 0xA5:			// RES 4, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0xA5");
+			opcode_res(4, l);
 			break;
 		case 0xA6:			// RES 4, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0xA6");
+			mmu->write8(hl.get(), opcode_res(4, mmu->read8(hl.get())));
 			break;
 		case 0xA7:			// RES 4, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0xA7");
+			opcode_res(4, a);
 			break;
 		case 0xA8:			// RES 5, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0xA8");
+			opcode_res(5, b);
 			break;
 		case 0xA9:			// RES 5, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0xA9");
+			opcode_res(5, c);
 			break;
 		case 0xAA:			// RES 5, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0xAA");
+			opcode_res(5, d);
 			break;
 		case 0xAB:			// RES 5, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0xAB");
+			opcode_res(5, e);
 			break;
 		case 0xAC:			// RES 5, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0xAC");
+			opcode_res(5, h);
 			break;
 		case 0xAD:			// RES 5, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0xAD");
+			opcode_res(5, l);
 			break;
 		case 0xAE:			// RES 5, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0xAE");
+			mmu->write8(hl.get(), opcode_res(5, mmu->read8(hl.get())));
 			break;
 		case 0xAF:			// RES 5, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0xAF");
+			opcode_res(5, a);
 			break;
 		case 0xB0:			// RES 6, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0xB0");
+			opcode_res(6, b);
 			break;
 		case 0xB1:			// RES 6, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0xB1");
+			opcode_res(6, c);
 			break;
 		case 0xB2:			// RES 6, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0xB2");
+			opcode_res(6, d);
 			break;
 		case 0xB3:			// RES 6, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0xB3");
+			opcode_res(6, e);
 			break;
 		case 0xB4:			// RES 6, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0xB4");
+			opcode_res(6, h);
 			break;
 		case 0xB5:			// RES 6, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0xB5");
+			opcode_res(6, l);
 			break;
 		case 0xB6:			// RES 6, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0xB6");
+			mmu->write8(hl.get(), opcode_res(6, mmu->read8(hl.get())));
 			break;
 		case 0xB7:			// RES 6, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0xB7");
+			opcode_res(6, a);
 			break;
 		case 0xB8:			// RES 7, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0xB8");
+			opcode_res(7, b);
 			break;
 		case 0xB9:			// RES 7, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0xB9");
+			opcode_res(7, c);
 			break;
 		case 0xBA:			// RES 7, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0xBA");
+			opcode_res(7, d);
 			break;
 		case 0xBB:			// RES 7, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0xBB");
+			opcode_res(7, e);
 			break;
 		case 0xBC:			// RES 7, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0xBC");
+			opcode_res(7, h);
 			break;
 		case 0xBD:			// RES 7, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0xBD");
+			opcode_res(7, l);
 			break;
 		case 0xBE:			// RES 7, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0xBE");
+			mmu->write8(hl.get(), opcode_res(7, mmu->read8(hl.get())));
 			break;
 		case 0xBF:			// RES 7, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0xBF");
+			opcode_res(7, a);
 			break;
 		case 0xC0:			// SET 0, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0xC0");
+			opcode_set(0, b);
 			break;
 		case 0xC1:			// SET 0, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0xC1");
+			opcode_set(0, c);
 			break;
 		case 0xC2:			// SET 0, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0xC2");
+			opcode_set(0, d);
 			break;
 		case 0xC3:			// SET 0, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0xC3");
+			opcode_set(0, e);
 			break;
 		case 0xC4:			// SET 0, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0xC4");
+			opcode_set(0, h);
 			break;
 		case 0xC5:			// SET 0, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0xC5");
+			opcode_set(0, l);
 			break;
 		case 0xC6:			// SET 0, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0xC6");
+			mmu->write8(hl.get(), opcode_set(0, mmu->read8(hl.get())));
 			break;
 		case 0xC7:			// SET 0, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0xC7");
+			opcode_set(0, a);
 			break;
 		case 0xC8:			// SET 1, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0xC8");
+			opcode_set(1, b);
 			break;
 		case 0xC9:			// SET 1, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0xC9");
+			opcode_set(1, c);
 			break;
 		case 0xCA:			// SET 1, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0xCA");
+			opcode_set(1, d);
 			break;
 		case 0xCB:			// SET 1, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0xCB");
+			opcode_set(1, e);
 			break;
 		case 0xCC:			// SET 1, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0xCC");
+			opcode_set(1, h);
 			break;
 		case 0xCD:			// SET 1, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0xCD");
+			opcode_set(1, l);
 			break;
 		case 0xCE:			// SET 1, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0xCE");
+			mmu->write8(hl.get(), opcode_set(1, mmu->read8(hl.get())));
 			break;
 		case 0xCF:			// SET 1, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0xCF");
+			opcode_set(1, a);
 			break;
 		case 0xD0:			// SET 2, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0xD0");
+			opcode_set(2, b);
 			break;
 		case 0xD1:			// SET 2, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0xD1");
+			opcode_set(2, c);
 			break;
 		case 0xD2:			// SET 2, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0xD2");
+			opcode_set(2, d);
 			break;
 		case 0xD3:			// SET 2, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0xD3");
+			opcode_set(2, e);
 			break;
 		case 0xD4:			// SET 2, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0xD4");
+			opcode_set(2, h);
 			break;
 		case 0xD5:			// SET 2, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0xD5");
+			opcode_set(2, l);
 			break;
 		case 0xD6:			// SET 2, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0xD6");
+			mmu->write8(hl.get(), opcode_set(2, mmu->read8(hl.get())));
 			break;
 		case 0xD7:			// SET 2, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0xD7");
+			opcode_set(2, a);
 			break;
 		case 0xD8:			// SET 3, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0xD8");
+			opcode_set(3, b);
 			break;
 		case 0xD9:			// SET 3, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0xD9");
+			opcode_set(3, c);
 			break;
 		case 0xDA:			// SET 3, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0xDA");
+			opcode_set(3, d);
 			break;
 		case 0xDB:			// SET 3, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0xDB");
+			opcode_set(3, e);
 			break;
 		case 0xDC:			// SET 3, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0xDC");
+			opcode_set(3, h);
 			break;
 		case 0xDD:			// SET 3, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0xDD");
+			opcode_set(3, l);
 			break;
 		case 0xDE:			// SET 3, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0xDE");
+			mmu->write8(hl.get(), opcode_set(3, mmu->read8(hl.get())));
 			break;
 		case 0xDF:			// SET 3, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0xDF");
+			opcode_set(3, a);
 			break;
 		case 0xE0:			// SET 4, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0xE0");
+			opcode_set(4, b);
 			break;
 		case 0xE1:			// SET 4, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0xE1");
+			opcode_set(4, c);
 			break;
 		case 0xE2:			// SET 4, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0xE2");
+			opcode_set(4, d);
 			break;
 		case 0xE3:			// SET 4, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0xE3");
+			opcode_set(4, e);
 			break;
 		case 0xE4:			// SET 4, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0xE4");
+			opcode_set(4, h);
 			break;
 		case 0xE5:			// SET 4, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0xE5");
+			opcode_set(4, l);
 			break;
 		case 0xE6:			// SET 4, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0xE6");
+			mmu->write8(hl.get(), opcode_set(4, mmu->read8(hl.get())));
 			break;
 		case 0xE7:			// SET 4, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0xE7");
+			opcode_set(4, a);
 			break;
 		case 0xE8:			// SET 5, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0xE8");
+			opcode_set(5, b);
 			break;
 		case 0xE9:			// SET 5, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0xE9");
+			opcode_set(5, c);
 			break;
 		case 0xEA:			// SET 5, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0xEA");
+			opcode_set(5, d);
 			break;
 		case 0xEB:			// SET 5, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0xEB");
+			opcode_set(5, e);
 			break;
 		case 0xEC:			// SET 5, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0xEC");
+			opcode_set(5, h);
 			break;
 		case 0xED:			// SET 5, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0xED");
+			opcode_set(5, l);
 			break;
 		case 0xEE:			// SET 5, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0xEE");
+			mmu->write8(hl.get(), opcode_set(5, mmu->read8(hl.get())));
 			break;
 		case 0xEF:			// SET 5, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0xEF");
+			opcode_set(5, a);
 			break;
 		case 0xF0:			// SET 6, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0xF0");
+			opcode_set(6, b);
 			break;
 		case 0xF1:			// SET 6, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0xF1");
+			opcode_set(6, c);
 			break;
 		case 0xF2:			// SET 6, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0xF2");
+			opcode_set(6, d);
 			break;
 		case 0xF3:			// SET 6, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0xF3");
+			opcode_set(6, e);
 			break;
 		case 0xF4:			// SET 6, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0xF4");
+			opcode_set(6, h);
 			break;
 		case 0xF5:			// SET 6, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0xF5");
+			opcode_set(6, l);
 			break;
 		case 0xF6:			// SET 6, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0xF6");
+			mmu->write8(hl.get(), opcode_set(6, mmu->read8(hl.get())));
 			break;
 		case 0xF7:			// SET 6, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0xF7");
+			opcode_set(6, a);
 			break;
 		case 0xF8:			// SET 7, B
-			throw std::runtime_error("Unimplemented CB Instruction: 0xF8");
+			opcode_set(7, b);
 			break;
 		case 0xF9:			// SET 7, C
-			throw std::runtime_error("Unimplemented CB Instruction: 0xF9");
+			opcode_set(7, c);
 			break;
 		case 0xFA:			// SET 7, D
-			throw std::runtime_error("Unimplemented CB Instruction: 0xFA");
+			opcode_set(7, d);
 			break;
 		case 0xFB:			// SET 7, E
-			throw std::runtime_error("Unimplemented CB Instruction: 0xFB");
+			opcode_set(7, e);
 			break;
 		case 0xFC:			// SET 7, H
-			throw std::runtime_error("Unimplemented CB Instruction: 0xFC");
+			opcode_set(7, h);
 			break;
 		case 0xFD:			// SET 7, L
-			throw std::runtime_error("Unimplemented CB Instruction: 0xFD");
+			opcode_set(7, l);
 			break;
 		case 0xFE:			// SET 7, HL
-			throw std::runtime_error("Unimplemented CB Instruction: 0xFE");
+			mmu->write8(hl.get(), opcode_set(7, mmu->read8(hl.get())));
 			break;
 		case 0xFF:			// SET 7, A
-			throw std::runtime_error("Unimplemented CB Instruction: 0xFF");
+			opcode_set(7, a);
 			break;
 
 		}

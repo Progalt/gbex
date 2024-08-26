@@ -12,4 +12,9 @@ namespace gbex
 	{
 		m_IME = value;
 	}
+
+	bool Interrupts::is_interrupt_enabled(InterruptSource source)
+	{
+
+	}
 }

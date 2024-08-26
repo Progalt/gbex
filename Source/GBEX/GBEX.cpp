@@ -33,8 +33,11 @@ namespace gbex
 		case 0x00:
 			m_MMU.m_Cartridge = new NoMBC(header, rom);
 			break;
+		case 0x01:
+			m_MMU.m_Cartridge = new MBC1(header, rom);
+			break;
 		default:
-			m_MMU.m_Cartridge = new NoMBC(header, rom);
+			throw std::runtime_error("Unsupported Mapper Chip");
 			break;
 		}
 

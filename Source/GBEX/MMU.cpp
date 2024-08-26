@@ -16,9 +16,12 @@ namespace gbex
 
 	void MMU::write8(uint16_t addr, uint8_t value)
 	{
-		// If the address is within ROM just return 
+
 		if (addr <= 0x7FFF)
+		{
+			m_Cartridge->write8(addr, value);
 			return;
+		}
 
 		// We want to intercept some writes because they are memory mapped io 
 		switch (addr)
@@ -45,7 +48,10 @@ namespace gbex
 	void MMU::write16(uint16_t addr, uint16_t value)
 	{
 		if (addr <= 0x7FFF)
+		{
+			m_Cartridge->write16(addr, value);
 			return;
+		}
 
 		uint16_t* p = ((uint16_t*)(m_Memory + addr));
 		*p = value;
