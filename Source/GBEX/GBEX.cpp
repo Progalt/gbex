@@ -49,6 +49,7 @@ namespace gbex
 		m_MMU.interrupts = &m_CPU.interrupts;
 		m_PPU.m_VsyncCallback = m_VsyncCallback;
 		m_PPU.m_CPU = &m_CPU;
+		m_PPU.initialise(&m_MMU);
 
 		return true;
 	}
@@ -72,14 +73,26 @@ namespace gbex
 	void gbex::step()
 	{
 
-		if (m_CPU.pc == m_Breakpoint)
-			m_HitBreakpoint = true;
-
-		if (!m_HitBreakpoint)
+		if (m_CPU.pc == m_Breakpoint && !m_HitBreakpoint)
 		{
+			m_HitBreakpoint = true;
+			m_Halted = true;
+		}
+
+		if (!m_Halted)
+		{
+			m_CPU.interrupts.handle_interrupts();
 			m_CPU.step();
 
 			m_PPU.step();
+
+			if (m_Step)
+				m_Halted = true;
+		}
+		else
+		{
+			if (m_PPU.m_VsyncCallback)
+				m_PPU.m_VsyncCallback();
 		}
 
 

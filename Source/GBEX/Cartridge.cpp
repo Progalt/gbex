@@ -30,12 +30,12 @@ namespace gbex
 
 	void NoMBC::write8(uint16_t addr, uint8_t data)
 	{
-		throw std::runtime_error("A Cartridge cannot be written to if it doesn't have an MBC");
+		// throw std::runtime_error("A Cartridge cannot be written to if it doesn't have an MBC");
 	}
 
 	void NoMBC::write16(uint16_t addr, uint16_t data)
 	{
-		throw std::runtime_error("A Cartridge cannot be written to if it doesn't have an MBC");
+		// throw std::runtime_error("A Cartridge cannot be written to if it doesn't have an MBC");
 	}
 
 	uint8_t MBC1::read8(uint16_t addr)

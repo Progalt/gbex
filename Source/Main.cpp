@@ -8,7 +8,17 @@
 #include <SDL3/SDL.h>
 #include "Util.h"
 
+#include "DebugUI/DebugUI.h"
+
+#include <imgui.h>
+#include <backends/imgui_impl_sdl3.h>
+#include <backends/imgui_impl_sdlrenderer3.h>
+
 SDL_Window* window;
+SDL_Renderer* renderer;
+
+SDL_Texture* VRAMtilesDebug;
+SDL_Texture* output;
 
 int main(int argc, char* argv[])
 {
@@ -23,7 +33,7 @@ int main(int argc, char* argv[])
     uint8_t* rom;
     long rom_size;
 
-    file = fopen("Tests/cpu_instrs.gb", "rb");
+    file = fopen("Tests/Super Mario Land.gb", "rb");
     if (file == NULL)
     {
         emu::FailureMessage("Error", "Unable to open ROM file, is the path correct?");
@@ -68,12 +78,69 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    renderer = SDL_CreateRenderer(window, NULL);
+
+    SDL_SetRenderVSync(renderer, 1);
+
+    VRAMtilesDebug = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 16 * 8, 24 * 8);
+    SDL_SetTextureScaleMode(VRAMtilesDebug, SDL_SCALEMODE_NEAREST);
+
+    output = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, gbex::GameboyScreenWidth, gbex::GameboyScreenHeight);
+    SDL_SetTextureScaleMode(output, SDL_SCALEMODE_NEAREST);
+
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    // Setup Platform/Renderer bindings
+    ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
+    ImGui_ImplSDLRenderer3_Init(renderer);
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+
 	gbex::gbex emulator;
     emulator.set_device_type(gbex::DeviceType::DMG);
 
     emulator.set_vsync_callback([&]() 
         {
+            uint8_t* pixelBuffer = emulator.get_framebuffer();
 
+            int pitch;
+            uint8_t* pixels;
+            SDL_LockTexture(output, NULL, (void**)&pixels, &pitch);
+
+            for (uint32_t i = 0; i < gbex::GameboyScreenWidth; i++)
+            {
+                for (uint32_t j = 0; j < gbex::GameboyScreenHeight; j++)
+                {
+                    uint32_t coord = j * gbex::GameboyScreenWidth + i;
+                    coord *= 4;
+
+                    pixels[coord + 3] = pixelBuffer[coord + 0];
+                    pixels[coord + 2] = pixelBuffer[coord + 1];
+                    pixels[coord + 1] = pixelBuffer[coord + 2];
+                    pixels[coord + 0] = pixelBuffer[coord + 3];
+
+                }
+            }
+
+            SDL_UnlockTexture(output);
+
+            SDL_RenderClear(renderer);
+
+            ImGui_ImplSDL3_NewFrame();
+            ImGui_ImplSDLRenderer3_NewFrame();
+            ImGui::NewFrame();
+
+            debugui_cpu(&emulator.m_CPU);
+            debugui_ppu(&emulator.m_PPU, &emulator.m_MMU, VRAMtilesDebug);
+            debugui_debugger(&emulator);
+            debugui_output(&emulator, output);
+
+            ImGui::Render();
+            ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+
+            SDL_RenderPresent(renderer);
         });
 
     emulator.load_cartridge(rom, rom_size);
@@ -84,14 +151,21 @@ int main(int argc, char* argv[])
     printf("Cartridge Type: %02x\n", emulator.get_cartridge()->get_header().cartridge_type);
     printf("ROM Size: %02x\n", emulator.get_cartridge()->get_header().rom_size);
 
-    // emulator.set_breakpoint(0xC65C);
+    // emulator.set_breakpoint(0x0233);
+
+    emulator.pause();
+
 
     bool running = true;
     while (running)
     {
+ 
+
         SDL_Event evnt;
         while (SDL_PollEvent(&evnt))
         {
+            ImGui_ImplSDL3_ProcessEvent(&evnt);
+
             switch (evnt.type)
             {
             case SDL_EVENT_QUIT:
@@ -100,20 +174,26 @@ int main(int argc, char* argv[])
             }
         }
 
-        try
-        {
+       // try
+        //{
             emulator.step();
-        }
+        /*}
         catch (std::exception& e)
         {
             emu::FailureMessage("Error", e.what());
             printf("%s\n", e.what());
             running = false;
-        }
+        }*/
+
+
     }
 
     printf("Emulator Terminated");
     free(rom);
+
+    ImGui_ImplSDL3_Shutdown();
+    ImGui_ImplSDLRenderer3_Shutdown();
+    ImGui::DestroyContext();
 
     SDL_DestroyWindow(window);
     SDL_Quit();

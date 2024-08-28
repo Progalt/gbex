@@ -34,9 +34,32 @@ namespace gbex
 
 		void set_breakpoint(uint16_t target_pc);
 
+		void reset_breakpoint() { m_HitBreakpoint = false; }
+
 		void set_vsync_callback(std::function<void()> callback)
 		{
 			m_VsyncCallback = callback;
+		}
+
+		void play()
+		{
+			m_Halted = false;
+			// m_HitBreakpoint = false;
+		}
+
+		void pause()
+		{
+			m_Halted = true;
+		}
+
+		bool is_halted() const 
+		{
+			return m_Halted;
+		}
+
+		uint8_t* get_framebuffer() const
+		{
+			return m_PPU.m_Framebuffer.get();
 		}
 
 		CPU m_CPU;
@@ -49,6 +72,9 @@ namespace gbex
 
 		uint16_t m_Breakpoint = 0xFFFF;
 		bool m_HitBreakpoint = false;
+
+		bool m_Step = false;
+		bool m_Halted = false;
 
 		DeviceType m_DeviceType = DeviceType::DMG;
 

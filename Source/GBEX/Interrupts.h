@@ -34,9 +34,13 @@ namespace gbex
 
 		bool is_interrupt_requested(InterruptSource source);
 
+		void set_interrupt_flag(InterruptSource source);
+
 		void handle_interrupts();
 
 	private:
+
+		void jump_to_interrupt(InterruptSource source);
 
 		bool m_IME;
 

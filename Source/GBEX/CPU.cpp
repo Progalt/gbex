@@ -38,6 +38,9 @@ namespace gbex
 
 	void CPU::step()
 	{
+		// Reset the number of cycles executed
+		tcycles = 0;
+
 		// If we are halted don't step 
 		if (is_halted)
 		{
@@ -914,9 +917,12 @@ namespace gbex
 		case 0xE9:			// JP HL
 			pc = hl.get();
 			break;
-		case 0xEA:			// LD a16, A
-			mmu->write8(mmu->read16(pc), a.get());
+		case 0xEA:			// LD [a16], A
+		{
+			uint16_t addr = mmu->read16(pc);
+			mmu->write8(addr, a.get());
 			pc += 2;
+		}
 			break;
 		case 0xEB:			// ILLEGAL_EB
 			throw std::runtime_error("Unimplemented Instruction: 0xEB");
@@ -1002,7 +1008,7 @@ namespace gbex
 
 		}
 
-		// printf("%s\n", instr.mnemonic);
+		//printf("%s\t\t[PC]:%04x\t[LY]:%02x\n", instr.mnemonic, pc, mmu->read8(0xFF44));
 
 	}
 

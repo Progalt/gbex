@@ -27,7 +27,7 @@ namespace gbex
 		switch (addr)
 		{
 		case 0xFF00:	
-
+			
 			break;
 		case 0xFF46:
 			do_dma_transfer(value);
@@ -63,20 +63,19 @@ namespace gbex
 		if (addr <= 0x7FFF)
 			return m_Cartridge->read8(addr);
 
-		// HARDCODED FOR NOW
-		if (addr == 0xFF44)
-			return 0x90;
+		switch (addr)
+		{
+		case 0xFF00:
+			return 0x0F;
+		
+		}
 
 		return m_Memory[addr];
 	}
 
 	uint16_t MMU::read16(uint16_t addr)
 	{
-		if (addr < 0x7FFF)
-			return m_Cartridge->read16(addr);
-
-
-		return *((uint16_t*)(m_Memory + addr));
+		return (uint16_t)(read8(addr) | (read8(addr + 1) << 8));
 	}
 
 	void MMU::do_dma_transfer(uint8_t data)
