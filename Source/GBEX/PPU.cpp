@@ -176,6 +176,10 @@ namespace gbex
 
 		draw_background(filled);
 
+		// On DMG bit 5 window enable is overriden by bit 0 
+		if (m_LCDC.is_bit_set(5) && m_LCDC.is_bit_set(0))
+			draw_window();
+
 		if (m_LCDC.is_bit_set(1))
 			draw_sprites(filled);
 
@@ -268,6 +272,57 @@ namespace gbex
 
 		}
 	
+	}
+
+	void PPU::draw_window()
+	{
+		uint8_t winY = m_MMU->read8(0xFF4A);
+
+		// If the window is too far scrolled don't draw this scanline 
+		if (winY > *m_LY)
+			return;
+
+		winY = *m_LY - winY;
+
+		for (uint16_t x = 0; x < GameboyScreenWidth; x++)
+		{
+			uint8_t winX = x + m_MMU->read8(0xFF4B) - 7;
+
+			uint16_t addr = m_LCDC.is_bit_set(6) ? 0x9C00 : 0x9800;
+
+			uint32_t tileX = winX / 8;
+			uint32_t tileY = winY / 8;
+
+			uint32_t tilePixelX = winX % 8;
+			uint32_t tilePixelY = winY % 8;
+
+			uint32_t tileIndex = tileY * 32 + tileX;
+
+			uint32_t tileIdAddress = addr + tileIndex;
+
+			uint32_t tileId = m_MMU->read8(tileIdAddress);
+
+
+			if (!m_LCDC.is_bit_set(4) && tileId < 128)
+				tileId += 256;
+
+			uint32_t tileMemAddr = 0x8000 + (tileId * 16);
+			tileMemAddr += (tilePixelY * 2);
+
+			uint8_t b1 = m_MMU->read8(tileMemAddr);
+			uint8_t b2 = m_MMU->read8(tileMemAddr + 1);
+
+			b1 = b1 >> (7 - tilePixelX) & 1;
+			b2 = b2 >> (7 - tilePixelX) & 1;
+
+			uint8_t paletteIndex = b1 | (b2 << 1);
+
+			uint8_t bgp = m_MMU->read8(0xFF47);
+
+			uint8_t pid = (bgp >> (paletteIndex * 2)) & 3;
+
+			plot_pixel(x, *m_LY, m_Palette.colours[pid].col[0], m_Palette.colours[pid].col[1], m_Palette.colours[pid].col[2]);
+		}
 	}
 
 	void PPU::draw_sprites(bool* filled)

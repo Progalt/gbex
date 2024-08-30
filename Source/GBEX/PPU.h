@@ -100,6 +100,8 @@ namespace gbex
 
 		void draw_background(bool* filled);
 
+		void draw_window();
+
 		void draw_sprites(bool* filled);
 	};
 }
