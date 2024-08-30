@@ -79,7 +79,7 @@ namespace gbex
 		uint16_t m_ROMBank = 0x01;
 		uint16_t m_RAMBank = 0x0;
 
-		uint8_t m_BankingSelect = 0x0;
+		uint8_t m_BankingMode = 0x0;
 
 	};
 
@@ -119,6 +119,8 @@ namespace gbex
 			m_HasRAM = ram;
 			m_HasBattery = battery;
 
+			uint32_t m_RAMSize = 0;
+
 			// MBC1 chips support up to 32kb of usable RAM anything any bigger required a different MBC
 			switch (header.ram_size)
 			{
@@ -126,16 +128,20 @@ namespace gbex
 			case 1:
 				break;
 			case 2:
-				m_RAM = std::make_unique<uint8_t[]>(0x2000);		// 8Kb of RAM
+				m_RAMSize = 0x2000;
 				break;
 			case 3:
-				m_RAM = std::make_unique<uint8_t[]>(0x8000);		// 32kb of RAM
+				m_RAMSize = 0x8000;
 				break;
 			default:
 				throw std::runtime_error("Invalid MBC1 Ram configuration");
 				break;
 			}
 			
+			m_RAM = std::make_unique<uint8_t[]>(m_RAMSize);
+
+			for (uint32_t i = 0; i < m_RAMSize; i++)
+				m_RAM[i] = 0xFF;
 		}
 
 		uint8_t read8(uint16_t addr);

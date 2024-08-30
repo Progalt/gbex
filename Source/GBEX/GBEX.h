@@ -46,12 +46,19 @@ namespace gbex
 		void play()
 		{
 			m_Halted = false;
+			m_Step = false;
 			// m_HitBreakpoint = false;
 		}
 
 		void pause()
 		{
 			m_Halted = true;
+		}
+
+		void step_intruction()
+		{
+			m_Step = true;
+			m_Halted = false;
 		}
 
 		bool is_halted() const 

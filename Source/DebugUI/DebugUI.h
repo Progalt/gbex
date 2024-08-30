@@ -139,6 +139,10 @@ inline void debugui_debugger(gbex::gbex* emulator)
 	{
 		emulator->pause();
 	}
+	if (ImGui::Button("Step"))
+	{
+		emulator->step_intruction();
+	}
 
 	ImGui::End();
 }

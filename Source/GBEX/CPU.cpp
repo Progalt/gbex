@@ -98,12 +98,14 @@ namespace gbex
 	{
 		sp -= 2;
 		mmu->write16(sp, value);
+
 	}
 
 	uint16_t CPU::read_stack()
 	{
 		uint16_t v = mmu->read16(sp);
 		sp += 2;
+
 		return v;
 	}
 
@@ -1008,7 +1010,7 @@ namespace gbex
 
 		}
 
-		// printf("%s\t\t[PC]:%04x\t[STAT]:%02x\n", instr.mnemonic, pc, mmu->read8(0xFF41));
+		//printf("%s\t\t[PC]:%04x\t\n", instr.mnemonic, pc);
 
 	}
 

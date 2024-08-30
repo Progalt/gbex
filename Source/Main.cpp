@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
     uint8_t* rom;
     long rom_size;
 
-    file = fopen("Tests/Super Mario Land.gb", "rb");
+    file = fopen("Tests/Super Mario Land 2.gb", "rb");
     if (file == NULL)
     {
         emu::FailureMessage("Error", "Unable to open ROM file, is the path correct?");
@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
     printf("Cartridge Type: %02x\n", emulator.get_cartridge()->get_header().cartridge_type);
     printf("ROM Size: %02x\n", emulator.get_cartridge()->get_header().rom_size);
 
-    //emulator.set_breakpoint(0x0333);
+    emulator.set_breakpoint(0x0335);
 
     emulator.pause();
 

@@ -102,6 +102,7 @@ namespace gbex
 				break;
 			}
 
+			//printf("ROM Bank switch: %02x\n", m_ROMBank);
 			return;
 		}
 
@@ -109,7 +110,10 @@ namespace gbex
 		if (addr >= 0x000 && addr <= 0x1FFF)
 		{
 			if ((data & 0x0F) == 0x0A)
+			{
 				m_RAMEnabled = true;
+				// printf("RAM Enabled\n");
+			}
 			else
 				m_RAMEnabled = false;
 
@@ -136,13 +140,16 @@ namespace gbex
 			return;
 		}
 
-		throw std::runtime_error("Unimplemend MBC1 Logic or its not allowed: write8");
+		if (addr >= 0x6000 && addr <= 0x7FFF)
+		{
+			m_BankingMode = data & 1;
+		}
 	}
 
 	void MBC1::write16(uint16_t addr, uint16_t data)
 	{
-		uint8_t upper = data & 0xF;
-		uint8_t lower = (data >> 8) & 0xF;
+		uint8_t upper = data & 0xFF;
+		uint8_t lower = (data >> 8) & 0xFF;
 
 		write8(addr, upper);
 		write8(addr + 1, lower);
