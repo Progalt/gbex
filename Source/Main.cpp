@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
     uint8_t* rom;
     long rom_size;
 
-    file = fopen("Tests/Super Mario Land 2.gb", "rb");
+    file = fopen("Tests/Legend of Zelda - Link's Awakening.gb", "rb");
     if (file == NULL)
     {
         emu::FailureMessage("Error", "Unable to open ROM file, is the path correct?");
@@ -158,8 +158,7 @@ int main(int argc, char* argv[])
     printf("ROM Title: %s\n", emulator.get_cartridge()->get_header().title);
     printf("New Licensee: %s\n", emulator.get_cartridge()->get_header().new_licensee);
     printf("SGB Flag: %02x\n", emulator.get_cartridge()->get_header().sgb_flag);
-    printf("Cartridge Type: %02x\n", emulator.get_cartridge()->get_header().cartridge_type);
-    printf("ROM Size: %02x\n", emulator.get_cartridge()->get_header().rom_size);
+    printf("MBC Type: %02x\n", emulator.get_cartridge()->get_header().cartridge_type);
 
     //emulator.set_breakpoint(0x0335);
 

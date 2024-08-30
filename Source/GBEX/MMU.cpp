@@ -157,7 +157,7 @@ namespace gbex
 		write8(0xFF26, 0xF1);		// NR52
 
 		// PPU IO
-		write8(0xFF50, 0x91);		// LCDC
+		write8(0xFF40, 0x91);		// LCDC
 		write8(0xFF41, 0x85);		// STAT
 		write8(0xFF42, 0x00);		// SCY
 		write8(0xFF43, 0x00);		// SCX

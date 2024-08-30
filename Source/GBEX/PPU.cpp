@@ -284,6 +284,7 @@ namespace gbex
 
 		winY = *m_LY - winY;
 
+		// Its fairly similar to the background other than it doesn't wrap 
 		for (uint16_t x = 0; x < GameboyScreenWidth; x++)
 		{
 			uint8_t winX = x + m_MMU->read8(0xFF4B) - 7;
@@ -367,11 +368,18 @@ namespace gbex
 
 				// int pixelOffset = (*m_LY * 160 * 4) + ((xp - 8) * 4);
 
-				if (m_LCDC.is_bit_set(2) && yp >= 8)
-					tileIdx += 1;
-
 				uint32_t tileMemAddr = 0x8000 + (tileIdx * 16);
 				tileMemAddr += (yp * 2);
+
+				if (m_LCDC.is_bit_set(2) && yp >= 8)
+				{
+					tileIdx += 1;
+					tileMemAddr = 0x8000 + (tileIdx * 16);
+					tileMemAddr += ((yp - 8) * 2);
+				}
+		
+			
+				
 
 				uint8_t b1 = m_MMU->read8(tileMemAddr);
 				uint8_t b2 = m_MMU->read8(tileMemAddr + 1);

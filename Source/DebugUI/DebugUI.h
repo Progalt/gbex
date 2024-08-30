@@ -113,11 +113,16 @@ inline void debugui_ppu(gbex::PPU* ppu, gbex::MMU* mmu, SDL_Texture* vramTilesDe
 
 	ImGui::Separator();
 
+	ImGui::Text("LCDC: %02x", mmu->read8(0xFF40));
+
 	ImGui::Text("LY: %02x", mmu->read8(0xFF44));
 
 	ImGui::Text("Mode: %d", (int)ppu->m_Mode);
 	ImGui::Text("SCY (0xFF42): %02x", mmu->read8(0xFF42));
 	ImGui::Text("SCX (0xFF43): %02x", mmu->read8(0xFF43));
+
+	ImGui::Text("WY (0xFF42): %02x", mmu->read8(0xFF4A));
+	ImGui::Text("WX (0xFF43): %02x", mmu->read8(0xFF4B));
 
 	renderVramTilesToTexture(vramTilesDebug, mmu);
 
