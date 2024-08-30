@@ -6,12 +6,12 @@ namespace gbex
 {
 	MMU::MMU() : m_Cartridge(nullptr)
 	{
-		m_Memory = new uint8_t[0xFFFF + 1];
+		m_Memory = std::make_unique<uint8_t[]>(0xFFFF + 1);
 	}
 
 	MMU::~MMU()
 	{
-		delete[] m_Memory;
+		
 	}
 
 	void MMU::write8(uint16_t addr, uint8_t value)
@@ -68,7 +68,7 @@ namespace gbex
 			return;
 		}
 
-		uint16_t* p = ((uint16_t*)(m_Memory + addr));
+		uint16_t* p = ((uint16_t*)(m_Memory.get() + addr));
 		*p = value;
 	}
 

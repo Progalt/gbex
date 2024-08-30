@@ -137,6 +137,8 @@ namespace gbex
 				throw std::runtime_error("Invalid MBC1 Ram configuration");
 				break;
 			}
+
+			m_RAMSize++;
 			
 			m_RAM = std::make_unique<uint8_t[]>(m_RAMSize);
 

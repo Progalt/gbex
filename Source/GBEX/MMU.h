@@ -63,7 +63,7 @@ namespace gbex
 			The first 32kb will come from the cartridge ROM and the MBCs
 		*/
 
-		uint8_t* m_Memory;
+		std::unique_ptr<uint8_t[]> m_Memory;
 
 		Cartridge* m_Cartridge;
 
