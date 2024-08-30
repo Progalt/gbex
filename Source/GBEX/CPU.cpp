@@ -1008,7 +1008,7 @@ namespace gbex
 
 		}
 
-		//printf("%s\t\t[PC]:%04x\t[LY]:%02x\n", instr.mnemonic, pc, mmu->read8(0xFF44));
+		// printf("%s\t\t[PC]:%04x\t[STAT]:%02x\n", instr.mnemonic, pc, mmu->read8(0xFF41));
 
 	}
 

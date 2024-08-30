@@ -5,7 +5,9 @@
 #include "CPU.h"
 #include "MMU.h"
 #include "PPU.h"
+#include "Joypad.h"
 #include <functional>
+#include "Timer.h"
 
 namespace gbex
 {
@@ -62,9 +64,21 @@ namespace gbex
 			return m_PPU.m_Framebuffer.get();
 		}
 
+		Joypad* get_joypad()
+		{
+			return &m_Joypad;
+		}
+
+		void set_dmg_colour_palette(Palette palette)
+		{
+			m_PPU.m_Palette = palette;
+		}
+
 		CPU m_CPU;
 		MMU m_MMU;
 		PPU m_PPU;
+		Joypad m_Joypad;
+		Timer m_Timer;
 
 	private:
 

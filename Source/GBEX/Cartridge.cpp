@@ -51,7 +51,18 @@ namespace gbex
 			return *(m_ROM + (bankOffset + bankAddr));
 		}
 
-		throw std::runtime_error("Attempting to read from unmapped ROM Memory");
+		if (addr >= 0xA000 && addr <= 0xBFFF)
+		{
+			if (!m_RAMEnabled)
+				throw std::runtime_error("Attempting to read from cartridge RAM when not enabled");
+
+			uint16_t bankAddr = addr - 0xA000;
+			uint32_t bankOffset = 0x2000 * m_RAMBank;
+
+			return m_RAM[bankOffset + bankAddr];
+		}
+
+		throw std::runtime_error("Attempting to read from unmapped cartridge Memory");
 	}
 
 	uint16_t MBC1::read16(uint16_t addr)
@@ -94,11 +105,46 @@ namespace gbex
 			return;
 		}
 
+		// Enable RAM
+		if (addr >= 0x000 && addr <= 0x1FFF)
+		{
+			if ((data & 0x0F) == 0x0A)
+				m_RAMEnabled = true;
+			else
+				m_RAMEnabled = false;
+
+			return;
+		}
+
+		if (addr >= 0x4000 && addr <= 0x5FFF)
+		{
+			m_RAMBank = data & 3;
+			return;
+		}
+
+		if (addr >= 0xA000 && addr <= 0xBFFF)
+		{
+			if (!m_RAMEnabled)
+			{
+				return;
+			}
+
+			uint16_t bankAddr = addr - 0xA000;
+			uint32_t bankOffset = 0x2000 * m_RAMBank;
+
+			m_RAM[bankOffset + bankAddr] = data;
+			return;
+		}
+
 		throw std::runtime_error("Unimplemend MBC1 Logic or its not allowed: write8");
 	}
 
 	void MBC1::write16(uint16_t addr, uint16_t data)
 	{
-		throw std::runtime_error("Unimplemend MBC1 Logic or its not allowed: write16");
+		uint8_t upper = data & 0xF;
+		uint8_t lower = (data >> 8) & 0xF;
+
+		write8(addr, upper);
+		write8(addr + 1, lower);
 	}
 }

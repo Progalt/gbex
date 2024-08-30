@@ -3,6 +3,8 @@
 #define GBEX_CARTRIDGE_H
 
 #include <cstdint>
+#include <memory>
+#include <stdexcept>
 
 namespace gbex
 {
@@ -75,6 +77,9 @@ namespace gbex
 		uint8_t* m_ROM;
 
 		uint16_t m_ROMBank = 0x01;
+		uint16_t m_RAMBank = 0x0;
+
+		uint8_t m_BankingSelect = 0x0;
 
 	};
 
@@ -106,10 +111,31 @@ namespace gbex
 	{
 	public:
 
-		MBC1(CartridgeHeader header, uint8_t* rom)
+		MBC1(CartridgeHeader header, uint8_t* rom, bool ram, bool battery)
 		{
 			m_Header = header;
 			m_ROM = rom;
+
+			m_HasRAM = ram;
+			m_HasBattery = battery;
+
+			// MBC1 chips support up to 32kb of usable RAM anything any bigger required a different MBC
+			switch (header.ram_size)
+			{
+			case 0:
+			case 1:
+				break;
+			case 2:
+				m_RAM = std::make_unique<uint8_t[]>(0x2000);		// 8Kb of RAM
+				break;
+			case 3:
+				m_RAM = std::make_unique<uint8_t[]>(0x8000);		// 32kb of RAM
+				break;
+			default:
+				throw std::runtime_error("Invalid MBC1 Ram configuration");
+				break;
+			}
+			
 		}
 
 		uint8_t read8(uint16_t addr);
@@ -119,6 +145,15 @@ namespace gbex
 		void write8(uint16_t addr, uint8_t data);
 
 		void write16(uint16_t addr, uint16_t data);
+
+	private:
+
+		bool m_HasRAM;
+		bool m_HasBattery;
+
+		bool m_RAMEnabled = false;
+
+		std::unique_ptr<uint8_t[]> m_RAM;
 	};
 }
 

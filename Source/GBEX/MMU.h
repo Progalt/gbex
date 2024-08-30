@@ -6,6 +6,8 @@
 #include "Cartridge.h"
 #include "BitValue.h"
 #include "Interrupts.h"
+#include "Joypad.h"
+#include "Timer.h"
 
 namespace gbex
 {
@@ -66,6 +68,10 @@ namespace gbex
 		Cartridge* m_Cartridge;
 
 		Interrupts* interrupts;
+
+		Joypad* m_Joypad;
+
+		Timer* m_Timer;
 
 
 	};

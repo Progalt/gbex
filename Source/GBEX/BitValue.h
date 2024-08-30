@@ -97,6 +97,11 @@ namespace gbex
 			return *m_Ptr;
 		}
 
+		uint8_t* get_ptr() const
+		{
+			return m_Ptr;
+		}
+
 	private:
 
 		uint8_t* m_Ptr = nullptr;

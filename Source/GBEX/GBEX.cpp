@@ -34,14 +34,22 @@ namespace gbex
 			m_MMU.m_Cartridge = new NoMBC(header, rom);
 			break;
 		case 0x01:
-			m_MMU.m_Cartridge = new MBC1(header, rom);
+			m_MMU.m_Cartridge = new MBC1(header, rom, false, false);
+			break;
+		case 0x02:
+			m_MMU.m_Cartridge = new MBC1(header, rom, true, false);
+			break;
+		case 0x03:
+			m_MMU.m_Cartridge = new MBC1(header, rom, true, true);
 			break;
 		default:
 			throw std::runtime_error("Unsupported Mapper Chip");
 			break;
 		}
 
+		m_MMU.m_Timer = &m_Timer;
 		m_MMU.initialise_memory_mapped_io();
+		m_Timer.initialise(&m_CPU, &m_MMU);
 
 		m_CPU.initialise_registers(header);
 		m_CPU.mmu = &m_MMU;
@@ -50,6 +58,9 @@ namespace gbex
 		m_PPU.m_VsyncCallback = m_VsyncCallback;
 		m_PPU.m_CPU = &m_CPU;
 		m_PPU.initialise(&m_MMU);
+		m_Joypad.initialise(&m_CPU, &m_MMU);
+		m_MMU.m_Joypad = &m_Joypad;
+		
 
 		return true;
 	}
@@ -81,10 +92,13 @@ namespace gbex
 
 		if (!m_Halted)
 		{
+			
 			m_CPU.interrupts.handle_interrupts();
 			m_CPU.step();
 
 			m_PPU.step();
+			m_Timer.step(m_CPU.tcycles);
+			
 
 			if (m_Step)
 				m_Halted = true;

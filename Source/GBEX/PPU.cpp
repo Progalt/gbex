@@ -2,6 +2,7 @@
 #include "PPU.h"
 #include "CPU.h"
 #include <chrono>
+#include <cmath>
 
 namespace gbex
 {
@@ -16,6 +17,7 @@ namespace gbex
 		m_Mode = PPUMode::OAMScan;
 
 		m_Framebuffer = std::make_unique<uint8_t[]>(GameboyScreenWidth * GameboyScreenHeight * 4);
+		m_LastFrame = std::make_unique<uint8_t[]>(GameboyScreenWidth * GameboyScreenHeight * 4);
 
 		m_Palette.colours[0] = Colour(255, 255, 255);
 		m_Palette.colours[1] = Colour(190, 190, 190);
@@ -31,9 +33,12 @@ namespace gbex
 		// If we want to emulate CGB, should probably divide by 2 
 		m_Dots += m_CPU->tcycles;
 
-		// Just return if PPU is off
+		// Just return if PPU is off but still allow vsync 
 		if (!m_LCDC.is_bit_set(7))
 		{
+			// IDK if this is good but reset the first 2 bits of stat to 0 
+			*m_STAT.get_ptr() &= ~3;
+
 			if (m_Dots >= 70224)
 			{
 				m_Dots = 0;
@@ -70,13 +75,13 @@ namespace gbex
 					}
 
 
-					m_STAT.set_bit(0, true);
-					m_STAT.set_bit(1, false);
 
 					// If we have a callback call it 
 
 					if (m_VsyncCallback)
 						m_VsyncCallback();
+
+					memcpy(m_LastFrame.get(), m_Framebuffer.get(), GameboyScreenWidth * GameboyScreenHeight * 4);
 				}
 				else
 				{
@@ -85,9 +90,10 @@ namespace gbex
 						m_CPU->interrupts.set_interrupt_flag(InterruptSource::LCD);
 					}
 
-					m_STAT.set_bit(0, false);
-					m_STAT.set_bit(1, true);
 				}
+
+				*m_STAT.get_ptr() &= ~3;
+				*m_STAT.get_ptr() |= (uint8_t)m_Mode;
 			}
 			break;
 		case PPUMode::VBlank:
@@ -112,9 +118,11 @@ namespace gbex
 						m_CPU->interrupts.set_interrupt_flag(InterruptSource::LCD);
 					}
 
-					m_STAT.set_bit(0, false);
-					m_STAT.set_bit(1, true);
+				
 				}
+
+				*m_STAT.get_ptr() &= ~3;
+				*m_STAT.get_ptr() |= (uint8_t)m_Mode;
 
 
 			}
@@ -126,8 +134,8 @@ namespace gbex
 
 				m_Mode = PPUMode::Drawing;
 
-				m_STAT.set_bit(0, true);
-				m_STAT.set_bit(1, true);
+				*m_STAT.get_ptr() &= ~3;
+				*m_STAT.get_ptr() |= (uint8_t)m_Mode;
 			}
 			break;
 		case PPUMode::Drawing:
@@ -143,8 +151,8 @@ namespace gbex
 					m_CPU->interrupts.set_interrupt_flag(InterruptSource::LCD);
 				}
 
-				m_STAT.set_bit(0, false);
-				m_STAT.set_bit(1, false);
+				*m_STAT.get_ptr() &= ~3;
+				*m_STAT.get_ptr() |= (uint8_t)m_Mode;
 			}
 			break;
 		}
@@ -167,6 +175,44 @@ namespace gbex
 
 		if (m_LCDC.is_bit_set(1))
 			draw_sprites();
+
+		// We now want to blend with the last frame 
+
+		auto lerp = [](float s, float e, float t)
+			{
+				return (s + (e - s) * t);
+			};
+
+		// Screen ghosting
+		// This is used to emulator the original DMG ghosting, which was quite severe in some cases
+		// SOme games may utilise it with sprites
+		if (settings.enabledScreenGhosting)
+		{
+			for (uint16_t i = 0; i < GameboyScreenWidth; i++)
+			{
+				uint32_t pixelOffset = *m_LY * (GameboyScreenWidth * 4) + (i * 4);
+
+				uint8_t r = m_Framebuffer[pixelOffset + 0];
+				uint8_t g = m_Framebuffer[pixelOffset + 1];
+				uint8_t b = m_Framebuffer[pixelOffset + 2];
+
+				uint8_t old_r = m_LastFrame[pixelOffset + 0];
+				uint8_t old_g = m_LastFrame[pixelOffset + 1];
+				uint8_t old_b = m_LastFrame[pixelOffset + 2];
+
+				// This next bit isn't very thought out but it works
+				// Only show ghosting if the effect is above a threshold. This is to reduce a 'burn-in' like effect. 
+				int accum = r + g + b;
+				int accum_old = old_r + old_g + old_b;
+
+				if (std::abs(accum - accum_old) >= 30)
+				{
+					m_Framebuffer[pixelOffset + 0] = (uint8_t)lerp((float)r, (float)old_r, settings.ghostAmount);
+					m_Framebuffer[pixelOffset + 1] = (uint8_t)lerp((float)g, (float)old_g, settings.ghostAmount);
+					m_Framebuffer[pixelOffset + 2] = (uint8_t)lerp((float)b, (float)old_b, settings.ghostAmount);
+				}
+			}
+		}
 	}
 
 	void PPU::draw_background()

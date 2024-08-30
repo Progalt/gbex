@@ -55,6 +55,12 @@ namespace gbex
 		uint8_t attributes;
 	};
 
+	struct PPUSettings
+	{
+		bool enabledScreenGhosting = true;
+		float ghostAmount = 0.65f;
+	};
+
 	class PPU
 	{
 	public:
@@ -63,6 +69,7 @@ namespace gbex
 
 		void step();
 
+		PPUSettings settings;
 
 		CPU* m_CPU;
 		MMU* m_MMU;
@@ -82,6 +89,8 @@ namespace gbex
 		std::unique_ptr<uint8_t[]> m_Framebuffer;
 
 	private:
+
+		std::unique_ptr<uint8_t[]> m_LastFrame;
 
 		void draw_scanline();
 

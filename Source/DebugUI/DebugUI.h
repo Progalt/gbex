@@ -6,7 +6,7 @@
 #include <imgui.h>
 #include <SDL3/SDL.h>
 
-inline void debugui_cpu(gbex::CPU* _cpu)
+inline void debugui_cpu(gbex::CPU* _cpu, gbex::MMU* mmu)
 {
 	ImGui::Begin("CPU");
 
@@ -31,6 +31,15 @@ inline void debugui_cpu(gbex::CPU* _cpu)
 	ImGui::Separator();
 
 	ImGui::Text("IME: %d", _cpu->interrupts.interrupts_enabled());
+
+	ImGui::Separator();
+
+	ImGui::Text("JOYP (0xFF00): %02x", mmu->read8(0xFF00));
+
+	ImGui::Text("DIV (0xFF04): %02x", mmu->read8(0xFF04));
+	ImGui::Text("TIMA (0xFF05): %02x", mmu->read8(0xFF05));
+	ImGui::Text("TMA (0xFF06): %02x", mmu->read8(0xFF06));
+	ImGui::Text("TAC (0xFF07): %02x", mmu->read8(0xFF07));
 
 
 	ImGui::End();	
@@ -98,6 +107,11 @@ void renderVramTilesToTexture(SDL_Texture* texture, gbex::MMU* mmu)
 inline void debugui_ppu(gbex::PPU* ppu, gbex::MMU* mmu, SDL_Texture* vramTilesDebug)
 {
 	ImGui::Begin("PPU");
+
+	ImGui::Checkbox("Enable Ghosting", &ppu->settings.enabledScreenGhosting);
+	ImGui::SliderFloat("Ghost Amount", &ppu->settings.ghostAmount, 0.0f, 1.0f);
+
+	ImGui::Separator();
 
 	ImGui::Text("LY: %02x", mmu->read8(0xFF44));
 

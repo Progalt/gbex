@@ -35,11 +35,19 @@ namespace gbex
 
 	void Interrupts::handle_interrupts()
 	{
+		uint8_t pending = m_IE.get() & m_IF.get();
+
+		// TODO: Make sure halt bug is handled correctly
+		if (!m_IME && pending)
+		{
+			m_ParentCPU->is_halted = false;
+		}
+
 		// If interrupts are disabled just return 
 		if (!m_IME)
 			return;
 
-		uint8_t pending = m_IE.get() & m_IF.get();
+	
 
 		if (m_ParentCPU->is_halted && pending)
 			m_ParentCPU->is_halted = false;

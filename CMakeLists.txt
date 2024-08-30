@@ -20,7 +20,7 @@ set(IMGUI_SOURCES
 
 set(SOURCES
 	"Source/Main.cpp"
- "Source/GBEX/Cartridge.cpp" "Source/GBEX/MMU.cpp" "Source/GBEX/GBEX.cpp" "Source/GBEX/CPU.cpp" "Source/GBEX/Interrupts.cpp" "Source/GBEX/Opcodes.cpp" "Source/GBEX/PPU.cpp")
+ "Source/GBEX/Cartridge.cpp" "Source/GBEX/MMU.cpp" "Source/GBEX/GBEX.cpp" "Source/GBEX/CPU.cpp" "Source/GBEX/Interrupts.cpp" "Source/GBEX/Opcodes.cpp" "Source/GBEX/PPU.cpp" "Source/GBEX/Joypad.cpp" "Source/GBEX/Timer.cpp")
 
 add_executable(gbex ${SOURCES} ${IMGUI_SOURCES})
 

@@ -23,12 +23,16 @@ namespace gbex
 			return;
 		}
 
+		// This is for external RAM
+		if (addr >= 0xA000 && addr <= 0xBFFF)
+		{
+			m_Cartridge->write8(addr, value);
+			return;
+		}
+
 		// We want to intercept some writes because they are memory mapped io 
 		switch (addr)
 		{
-		case 0xFF00:	
-			
-			break;
 		case 0xFF46:
 			do_dma_transfer(value);
 			break;
@@ -40,6 +44,10 @@ namespace gbex
 			}
 
 			break;
+		case 0xFF04:
+			m_Timer->reset_div();
+			return;
+			break;
 		}
 
 		m_Memory[addr] = value;
@@ -48,6 +56,13 @@ namespace gbex
 	void MMU::write16(uint16_t addr, uint16_t value)
 	{
 		if (addr <= 0x7FFF)
+		{
+			m_Cartridge->write16(addr, value);
+			return;
+		}
+
+		// This is for external RAM
+		if (addr >= 0xA000 && addr <= 0xBFFF)
 		{
 			m_Cartridge->write16(addr, value);
 			return;
@@ -63,11 +78,15 @@ namespace gbex
 		if (addr <= 0x7FFF)
 			return m_Cartridge->read8(addr);
 
+		if (addr >= 0xA000 && addr <= 0xBFFF)
+			return m_Cartridge->read8(addr);
+
 		switch (addr)
 		{
 		case 0xFF00:
-			return 0x0F;
-		
+			return m_Joypad->get_button_readings(m_Memory[addr]);
+		case 0xFF04:		// DIV
+			return m_Timer->get_div();
 		}
 
 		return m_Memory[addr];
@@ -104,7 +123,7 @@ namespace gbex
 		write8(0xFF00, 0xCF);		// JOYP
 		write8(0xFF01, 0x00);		// SB
 		write8(0xFF02, 0x7E);		// SC
-		write8(0xFF04, 0xAB);		// DIV
+		
 		write8(0xFF05, 0x00);		// TIMA
 		write8(0xFF06, 0x00);		// TMA
 		write8(0xFF07, 0xF8);		// TAC

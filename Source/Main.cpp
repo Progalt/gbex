@@ -101,6 +101,14 @@ int main(int argc, char* argv[])
 	gbex::gbex emulator;
     emulator.set_device_type(gbex::DeviceType::DMG);
 
+    gbex::Palette originalLCD;
+    originalLCD.colours[0] = gbex::Colour(0x8c, 0xad, 0x28);
+    originalLCD.colours[1] = gbex::Colour(0x6c, 0x94, 0x21);
+    originalLCD.colours[2] = gbex::Colour(0x42, 0x6b, 0x29);
+    originalLCD.colours[3] = gbex::Colour(0x21, 0x42, 0x31);
+
+
+
     emulator.set_vsync_callback([&]() 
         {
             uint8_t* pixelBuffer = emulator.get_framebuffer();
@@ -132,7 +140,7 @@ int main(int argc, char* argv[])
             ImGui_ImplSDLRenderer3_NewFrame();
             ImGui::NewFrame();
 
-            debugui_cpu(&emulator.m_CPU);
+            debugui_cpu(&emulator.m_CPU, &emulator.m_MMU);
             debugui_ppu(&emulator.m_PPU, &emulator.m_MMU, VRAMtilesDebug);
             debugui_debugger(&emulator);
             debugui_output(&emulator, output);
@@ -145,13 +153,15 @@ int main(int argc, char* argv[])
 
     emulator.load_cartridge(rom, rom_size);
 
+    emulator.set_dmg_colour_palette(originalLCD);
+
     printf("ROM Title: %s\n", emulator.get_cartridge()->get_header().title);
     printf("New Licensee: %s\n", emulator.get_cartridge()->get_header().new_licensee);
     printf("SGB Flag: %02x\n", emulator.get_cartridge()->get_header().sgb_flag);
     printf("Cartridge Type: %02x\n", emulator.get_cartridge()->get_header().cartridge_type);
     printf("ROM Size: %02x\n", emulator.get_cartridge()->get_header().rom_size);
 
-    // emulator.set_breakpoint(0x0233);
+    //emulator.set_breakpoint(0x0333);
 
     emulator.pause();
 
@@ -162,6 +172,7 @@ int main(int argc, char* argv[])
  
 
         SDL_Event evnt;
+        gbex::Joypad* joyp = emulator.get_joypad();
         while (SDL_PollEvent(&evnt))
         {
             ImGui_ImplSDL3_ProcessEvent(&evnt);
@@ -170,6 +181,68 @@ int main(int argc, char* argv[])
             {
             case SDL_EVENT_QUIT:
                 running = false;
+                break;
+            case SDL_EVENT_KEY_DOWN:
+            {
+                switch (evnt.key.key)
+                {
+                case SDLK_UP:
+                    joyp->set_button_down(gbex::JoypadButton::UP);
+                    break;
+                case SDLK_DOWN:
+                    joyp->set_button_down(gbex::JoypadButton::DOWN);
+                    break;
+                case SDLK_RIGHT:
+                    joyp->set_button_down(gbex::JoypadButton::RIGHT);
+                    break;
+                case SDLK_LEFT:
+                    joyp->set_button_down(gbex::JoypadButton::LEFT);
+                    break;
+                case SDLK_RETURN:
+                    joyp->set_button_down(gbex::JoypadButton::START);
+                    break;
+                case SDLK_BACKSPACE:
+                    joyp->set_button_down(gbex::JoypadButton::SELECT);
+                    break;
+                case SDLK_X:
+                    joyp->set_button_down(gbex::JoypadButton::B);
+                    break;
+                case SDLK_C:
+                    joyp->set_button_down(gbex::JoypadButton::A);
+                    break;
+                }
+            }
+                break;
+            case SDL_EVENT_KEY_UP:
+            {
+                switch (evnt.key.key)
+                {
+                case SDLK_UP:
+                    joyp->set_button_released(gbex::JoypadButton::UP);
+                    break;
+                case SDLK_DOWN:
+                    joyp->set_button_released(gbex::JoypadButton::DOWN);
+                    break;
+                case SDLK_RIGHT:
+                    joyp->set_button_released(gbex::JoypadButton::RIGHT);
+                    break;
+                case SDLK_LEFT:
+                    joyp->set_button_released(gbex::JoypadButton::LEFT);
+                    break;
+                case SDLK_RETURN:
+                    joyp->set_button_released(gbex::JoypadButton::START);
+                    break;
+                case SDLK_BACKSPACE:
+                    joyp->set_button_released(gbex::JoypadButton::SELECT);
+                    break;
+                case SDLK_X:
+                    joyp->set_button_released(gbex::JoypadButton::B);
+                    break;
+                case SDLK_C:
+                    joyp->set_button_released(gbex::JoypadButton::A);
+                    break;
+                }
+            }
                 break;
             }
         }
