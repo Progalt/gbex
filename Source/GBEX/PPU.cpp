@@ -171,10 +171,13 @@ namespace gbex
 
 	void PPU::draw_scanline()
 	{
-		draw_background();
+		bool filled[GameboyScreenWidth];
+		memset(filled, false, sizeof(bool) * GameboyScreenWidth);
+
+		draw_background(filled);
 
 		if (m_LCDC.is_bit_set(1))
-			draw_sprites();
+			draw_sprites(filled);
 
 		// We now want to blend with the last frame 
 
@@ -215,7 +218,7 @@ namespace gbex
 		}
 	}
 
-	void PPU::draw_background()
+	void PPU::draw_background(bool* filled)
 	{
 
 		uint32_t screenY = *m_LY;
@@ -259,12 +262,15 @@ namespace gbex
 
 			plot_pixel(screenX, screenY, m_Palette.colours[pid].col[0], m_Palette.colours[pid].col[1], m_Palette.colours[pid].col[2]);
 
+			if (paletteIndex > 0)
+				filled[screenX] = true;
+			
 
 		}
 	
 	}
 
-	void PPU::draw_sprites()
+	void PPU::draw_sprites(bool* filled)
 	{
 		uint8_t objSizeBit = m_LCDC.is_bit_set(2);
 		uint8_t objSize = objSizeBit ? 16 : 8;
@@ -337,7 +343,10 @@ namespace gbex
 
 				uint8_t pid = (obp >> (paletteIndex * 2)) & 3;
 
-				plot_pixel(xp - 8, *m_LY, m_Palette.colours[pid].col[0], m_Palette.colours[pid].col[1], m_Palette.colours[pid].col[2]);
+				bool priority = attributes.is_bit_set(7);
+
+				if (!filled[xp - 8] || !priority)
+					plot_pixel(xp - 8, *m_LY, m_Palette.colours[pid].col[0], m_Palette.colours[pid].col[1], m_Palette.colours[pid].col[2]);
 
 			}
 		}
