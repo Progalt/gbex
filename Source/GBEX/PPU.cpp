@@ -294,11 +294,13 @@ namespace gbex
 			if (obj->x < 8 || obj->x >= 168)
 				continue;
 
+			// Get y and flip if needed
 			int yp = *m_LY - (obj->y - 16);
+			yp = attributes.is_bit_set(6) ? (7 + 8 * objSizeBit) - yp : yp;
 
 			for (uint8_t x = 0; x < 8; x++)
 			{
-				int xp = obj->x + x;
+				int xp = obj->x + x - 8;
 
 				// Check if this pixel is offscreen
 				if (xp < 0 || xp >= 160)
@@ -312,8 +314,6 @@ namespace gbex
 
 				if (m_LCDC.is_bit_set(2) && yp >= 8)
 					tileIdx += 1;
-
-				// TODO: Y Flip
 
 				uint32_t tileMemAddr = 0x8000 + (tileIdx * 16);
 				tileMemAddr += (yp * 2);
@@ -345,8 +345,8 @@ namespace gbex
 
 				bool priority = attributes.is_bit_set(7);
 
-				if (!filled[xp - 8] || !priority)
-					plot_pixel(xp - 8, *m_LY, m_Palette.colours[pid].col[0], m_Palette.colours[pid].col[1], m_Palette.colours[pid].col[2]);
+				if (!filled[xp ] || !priority)
+					plot_pixel(xp, *m_LY, m_Palette.colours[pid].col[0], m_Palette.colours[pid].col[1], m_Palette.colours[pid].col[2]);
 
 			}
 		}
