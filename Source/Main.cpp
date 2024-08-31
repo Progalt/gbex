@@ -33,6 +33,7 @@ int main(int argc, char* argv[])
     uint8_t* rom;
     long rom_size;
 
+
     file = fopen("Tests/Legend of Zelda - Link's Awakening.gb", "rb");
     if (file == NULL)
     {

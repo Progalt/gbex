@@ -121,8 +121,8 @@ inline void debugui_ppu(gbex::PPU* ppu, gbex::MMU* mmu, SDL_Texture* vramTilesDe
 	ImGui::Text("SCY (0xFF42): %02x", mmu->read8(0xFF42));
 	ImGui::Text("SCX (0xFF43): %02x", mmu->read8(0xFF43));
 
-	ImGui::Text("WY (0xFF42): %02x", mmu->read8(0xFF4A));
-	ImGui::Text("WX (0xFF43): %02x", mmu->read8(0xFF4B));
+	ImGui::Text("WY (0xFF4A): %02x", mmu->read8(0xFF4A));
+	ImGui::Text("WX (0xFF4B): %02x", mmu->read8(0xFF4B));
 
 	renderVramTilesToTexture(vramTilesDebug, mmu);
 

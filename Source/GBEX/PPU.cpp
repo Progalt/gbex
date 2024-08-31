@@ -61,7 +61,6 @@ namespace gbex
 
 				*m_LY += 1;
 
-				compare_ly_lyc();
 				
 				if (*m_LY == 144)
 				{
@@ -102,8 +101,6 @@ namespace gbex
 				m_Dots = m_Dots % DotsPerVBlankScanline;
 
 				*m_LY += 1;
-
-				compare_ly_lyc();
 				
 
 				if (*m_LY == 153)
@@ -150,6 +147,8 @@ namespace gbex
 				{
 					m_CPU->interrupts.set_interrupt_flag(InterruptSource::LCD);
 				}
+
+				compare_ly_lyc();
 
 				*m_STAT.get_ptr() &= ~3;
 				*m_STAT.get_ptr() |= (uint8_t)m_Mode;
@@ -371,6 +370,7 @@ namespace gbex
 				uint32_t tileMemAddr = 0x8000 + (tileIdx * 16);
 				tileMemAddr += (yp * 2);
 
+				// For 8x16 sprites 
 				if (m_LCDC.is_bit_set(2) && yp >= 8)
 				{
 					tileIdx += 1;
