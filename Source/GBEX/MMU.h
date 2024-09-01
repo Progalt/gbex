@@ -73,6 +73,12 @@ namespace gbex
 
 		Timer* m_Timer;
 
+		// Both the next two memory locations are controlled by registers and mapped to where their initial bank would be in RAM 
+
+		std::unique_ptr<uint8_t[]> m_CGBVRAMBank1;		// In CGB Mode we have an extra bank of VRAM with access controlled by the VBK register
+
+		std::unique_ptr<uint8_t[]> m_CGBWorkRAM;		// CGB also has extra 8 banks of Work RAM. 
+
 
 	};
 }

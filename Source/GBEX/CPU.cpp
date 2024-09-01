@@ -14,7 +14,7 @@ namespace gbex
 	{
 	}
 
-	void CPU::initialise_registers(CartridgeHeader& header)
+	void CPU::initialise_registers_dmg(CartridgeHeader& header)
 	{
 		// We initialise the registers to set values
 
@@ -34,6 +34,26 @@ namespace gbex
 		set_flag_subtract(false);
 		set_flag_carry(true);
 		set_flag_half_carry(true);
+	}
+
+	void CPU::initialise_registers_cgb(CartridgeHeader& header)
+	{
+		pc = 0x100;
+		sp = 0xFFFE;
+
+		a.set(0x11);
+
+		b.set(0x00);
+		c.set(0x00);
+		d.set(0xFF);
+		e.set(0x56);
+		h.set(0x00);
+		l.set(0x0D);
+
+		set_flag_zero(true);
+		set_flag_subtract(false);
+		set_flag_carry(false);
+		set_flag_half_carry(false);
 	}
 
 	void CPU::step()

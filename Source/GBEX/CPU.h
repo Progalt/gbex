@@ -102,7 +102,9 @@ namespace gbex
 
 		bool is_halted;
 
-		void initialise_registers(CartridgeHeader& header);
+		void initialise_registers_dmg(CartridgeHeader& header);
+
+		void initialise_registers_cgb(CartridgeHeader& header);
 
 		void step();
 

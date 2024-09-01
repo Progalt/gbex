@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     long rom_size;
 
 
-    file = fopen("Tests/Legend of Zelda - Link's Awakening.gb", "rb");
+    file = fopen("Tests/Super Mario Land 2.gb", "rb");
     if (file == NULL)
     {
         emu::FailureMessage("Error", "Unable to open ROM file, is the path correct?");

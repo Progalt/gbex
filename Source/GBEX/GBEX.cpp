@@ -42,6 +42,15 @@ namespace gbex
 		case 0x03:
 			m_MMU.m_Cartridge = new MBC1(header, rom, true, true);
 			break;
+		case 0x19:
+			m_MMU.m_Cartridge = new MBC5(header, rom, false, false);
+			break;
+		case 0x1A:
+			m_MMU.m_Cartridge = new MBC5(header, rom, true, false);
+			break;
+		case 0x1B:
+			m_MMU.m_Cartridge = new MBC5(header, rom, true, true);
+			break;
 		default:
 			throw std::runtime_error("Unsupported Mapper Chip");
 			break;
@@ -51,7 +60,7 @@ namespace gbex
 		m_MMU.initialise_memory_mapped_io();
 		m_Timer.initialise(&m_CPU, &m_MMU);
 
-		m_CPU.initialise_registers(header);
+		m_CPU.initialise_registers_dmg(header);
 		m_CPU.mmu = &m_MMU;
 		m_CPU.interrupts = Interrupts(&m_CPU, &m_MMU);
 		m_MMU.interrupts = &m_CPU.interrupts;

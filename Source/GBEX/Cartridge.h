@@ -163,6 +163,67 @@ namespace gbex
 
 		std::unique_ptr<uint8_t[]> m_RAM;
 	};
+
+	class MBC5 : public Cartridge
+	{
+	public:
+		MBC5(CartridgeHeader header, uint8_t* rom, bool ram, bool battery)
+		{
+			m_Header = header;
+			m_ROM = rom;
+
+			m_HasRAM = ram;
+			m_HasBattery = battery;
+
+			uint32_t m_RAMSize = 0;
+
+			// MBC1 chips support up to 32kb of usable RAM anything any bigger required a different MBC
+			switch (header.ram_size)
+			{
+			case 0:
+			case 1:
+				break;
+			case 2:
+				m_RAMSize = 0x2000;
+				break;
+			case 3:
+				m_RAMSize = 0x8000;
+				break;
+			case 4:
+				m_RAMSize = 0x20000;
+				break;
+			default:
+				throw std::runtime_error("Invalid MBC5 Ram configuration");
+				break;
+			}
+
+			m_RAMSize++;
+
+			m_RAM = std::make_unique<uint8_t[]>(m_RAMSize);
+
+			for (uint32_t i = 0; i < m_RAMSize; i++)
+				m_RAM[i] = 0xFF;
+		}
+
+		uint8_t read8(uint16_t addr);
+
+		uint16_t read16(uint16_t addr);
+
+		void write8(uint16_t addr, uint8_t data);
+
+		void write16(uint16_t addr, uint16_t data);
+
+	private:
+
+		bool m_HasRAM;
+		bool m_HasBattery;
+
+		bool m_RAMEnabled = false;
+
+		bool m_Rumble = false;
+
+		std::unique_ptr<uint8_t[]> m_RAM;
+	};
 }
 
 #endif // GBEX_CARTRIDGE_H
