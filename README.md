@@ -32,3 +32,8 @@ The Project uses git submodules and CMake.
 git clone --recursive https://github.com/Progalt/gbex.git
 ```
 To clone the repository and its submodules. You can then run CMake to build the project. 
+
+## Embedding 
+
+You can embed the emulator in your own project. The actual emulator only depends on C++17 and the standard library. Just take what's in the `Source/GBEX` directory and paste it into your own project and build system. 
+I then recommend following how its used in `Main.cpp` to learn how to hook everything up correctly. 
