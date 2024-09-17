@@ -112,7 +112,7 @@ namespace gbex
 		return &m_Memory[addr];
 	}
 
-	void MMU::initialise_memory_mapped_io()
+	void MMU::initialise_memory_mapped_io_cgb()
 	{
 		initialise_memory_mapped_io_dmg();
 	}

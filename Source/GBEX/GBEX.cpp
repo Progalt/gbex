@@ -57,10 +57,21 @@ namespace gbex
 		}
 
 		m_MMU.m_Timer = &m_Timer;
-		m_MMU.initialise_memory_mapped_io();
-		m_Timer.initialise(&m_CPU, &m_MMU);
+		
 
-		m_CPU.initialise_registers_dmg(header);
+		switch (m_DeviceType)
+		{
+		case DeviceType::DMG:
+			m_MMU.initialise_memory_mapped_io_dmg();
+			m_CPU.initialise_registers_dmg(header);
+			break;
+		case DeviceType::CGB:
+			m_MMU.initialise_memory_mapped_io_dmg();
+			m_CPU.initialise_registers_cgb(header);
+			break;
+		}
+
+		m_Timer.initialise(&m_CPU, &m_MMU);
 		m_CPU.mmu = &m_MMU;
 		m_CPU.interrupts = Interrupts(&m_CPU, &m_MMU);
 		m_MMU.interrupts = &m_CPU.interrupts;

@@ -49,11 +49,11 @@ namespace gbex
 
 		void do_dma_transfer(uint8_t data);
 
-		void initialise_memory_mapped_io();
+		void initialise_memory_mapped_io_dmg();
+
+		void initialise_memory_mapped_io_cgb();
 
 	private:
-
-		void initialise_memory_mapped_io_dmg();
 
 		friend class gbex;
 

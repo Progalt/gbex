@@ -6,11 +6,13 @@ memory safety in mind.
 
 The emulator has been tested with a few mooneye gb tests and blargg tests for compliance and passes most but fails some on accuracy, mostly within the timer. 
 
+![Screen Shot of the emulator with a debugger](images/showcase1.png)
+
 ## Features
 
 - CPU, PPU and Timer implementations. 
 - Exposed Joypad API to funnel external events to the internal emulator registers. 
-- MBC1, MBC5 fully implemented. 
+- MBC1, MBC5 fully implemented -> No saving as of yet. 
 - Mostly accurate DMG LCD emulation. Including the ability to control ghosting and the DMG display colours. 
 
 ## TODO
